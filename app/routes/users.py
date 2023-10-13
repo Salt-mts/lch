@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from .. import models, schemas, oauth2
 from ..database import engine, get_db
 from sqlalchemy.orm import Session 
-from typing import List
 from ..utils import get_password_hash
 
 models.Base.metadata.create_all(bind=engine)
@@ -18,7 +17,7 @@ router = APIRouter(
 def root():
     return {"message": "Hello Userssssssssss"}
 
-# register
+# ***************REGISTER USER******************
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.RegResponse)
 def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
     #email exist
@@ -34,10 +33,44 @@ def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
     db.refresh(new_uza)
     return new_uza
 
-# get user details
-@router.get("/user", status_code=status.HTTP_200_OK, response_model=schemas.PersonalResponse)
+
+# ***************PERSONAL DETAILS*******************
+@router.post("/user", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+def update_personal_details(user: schemas.Personal, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+    query = db.query(models.User).filter(models.User.id == current_user.id)
+    
+    #details exist
+    details_exist = query.first()
+    if details_exist:
+        query.update(user.model_dump(), synchronize_session=False)
+        db.commit()
+        return query.first()
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+
+
+# ***************UPDATE PASSWORD*******************
+@router.post("/user/password", status_code=status.HTTP_202_ACCEPTED)
+def update_password(user: schemas.Password, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+
+    user.password = get_password_hash(user.password)
+    query = db.query(models.User).filter(models.User.id == current_user.id)
+    
+    #user exist
+    user_exist = query.first()
+    if user_exist:
+        query.update(user.model_dump(), synchronize_session=False)
+        db.commit()
+        return {"data": "success"}
+    else:
+        return {"data": "failed"}
+    
+
+# ***************GET USER DETAILS*******************
+@router.get("/user", status_code=status.HTTP_200_OK, response_model=schemas.UserOut)
 def get_personal_details(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
-    results =  db.query(models.Personal).filter(current_user.id == models.Personal.user_id).first()
+    results =  db.query(models.User).filter(current_user.id == models.User.id).first()
     if not results:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No personal details found.")
     
@@ -49,21 +82,3 @@ def get_personal_details(db: Session = Depends(get_db), current_user: str = Depe
 # def get_users(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 #     uza =  db.query(models.User).all()
 #     return uza
-
-# update basic details
-@router.post("/user", status_code=status.HTTP_201_CREATED, response_model=schemas.PersonalResponse)
-def update_personal_details(user: schemas.Personal, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
-    query = db.query(models.Personal).filter(models.Personal.user_id == current_user.id)
-    
-    #details exist
-    details_exist = query.first()
-    if details_exist:
-        query.update(user.model_dump(), synchronize_session=False)
-        db.commit()
-        return query.first()
-    else:
-        basic = models.Personal(user_id=current_user.id, **user.model_dump())
-        db.add(basic)
-        db.commit()
-        db.refresh(basic)
-        return basic

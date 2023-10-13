@@ -2,33 +2,45 @@ from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional
 
-# user
+# ***********USER SCHEMAS*************
 class RegisterUser(BaseModel):
     email: EmailStr
+    password: str
+
+
+class Password(BaseModel):
     password: str
 
 class User(BaseModel):
     id: int
     email: EmailStr
     password: str
+    firstname: Optional[str]
+    lastname: Optional[str]
+    phone: Optional[str]
+    sex: Optional[str]
     is_active: bool
     date_created: datetime
     verification_code: Optional[int]
     email_verified: Optional[int]
 
-class Personal(BaseModel):
-    firstname: str
-    lastname: str
-    phone: str
-    sex: Optional[str]
-
-class Addresses(BaseModel):
+class UserOut(BaseModel):
     id: int
-    user_id: int
-    address: str
-    city: str
-    state: str
-    country: str
+    email: EmailStr
+    firstname: Optional[str]
+    lastname: Optional[str]
+    phone: Optional[str]
+    sex: Optional[str]
+    is_active: bool
+    date_created: datetime
+    email_verified: Optional[int]
+    
+
+class Personal(BaseModel):
+    firstname: Optional[str]
+    lastname: Optional[str]
+    phone: Optional[str]
+    sex: Optional[str]
 
 class PersonalImg(BaseModel):
     user_id: int
@@ -54,9 +66,6 @@ class RegResponse(BaseModel):
         from_attributes = True
 
 
-class PersonalResponse(Personal):
-    user_id: int
-
 class UserResponse(RegResponse):
     pass
     # firstname: Optional[str]
@@ -71,3 +80,50 @@ class UserResponse(RegResponse):
         from_attributes = True
 
 
+#************ BUSINESS MODELS ******************
+class Business(BaseModel):
+    owner_id: int
+    name: str
+    about: Optional[str]
+    years_of_experience: Optional[int]
+    work_experience: Optional[str]
+    address: Optional[str]
+    city: Optional[str]
+    state: Optional[str]
+    country: Optional[str]
+    days: Optional[str]
+    hour_from: Optional[str]
+    hour_to: Optional[str]
+    website: Optional[str]
+    facebook: Optional[str]
+    instagram: Optional[str]
+    twitter: Optional[str]
+    linkedin: Optional[str]
+    owner: UserOut
+
+
+class BusinessAbout(BaseModel):
+    name: str
+    about: Optional[str]
+
+class BusinessExperience(BaseModel):
+    work_experience: Optional[str]
+    years_of_experience: Optional[int]
+
+class BusinessAddress(BaseModel):
+    address: Optional[str]
+    city: Optional[str]
+    state: Optional[str]
+    country: Optional[str]
+
+class BusinessSocial(BaseModel):
+    website: Optional[str]
+    facebook: Optional[str]
+    instagram: Optional[str]
+    twitter: Optional[str]
+    linkedin: Optional[str]
+
+class BusinessHour(BaseModel):
+    days: Optional[str]
+    hour_from: Optional[str]
+    hour_to: Optional[str]
