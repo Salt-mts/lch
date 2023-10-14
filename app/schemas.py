@@ -19,6 +19,7 @@ class User(BaseModel):
     lastname: Optional[str]
     phone: Optional[str]
     sex: Optional[str]
+    image: Optional[str]
     is_active: bool
     date_created: datetime
     verification_code: Optional[int]
@@ -31,6 +32,7 @@ class UserOut(BaseModel):
     lastname: Optional[str]
     phone: Optional[str]
     sex: Optional[str]
+    image: Optional[str]
     is_active: bool
     date_created: datetime
     email_verified: Optional[int]
@@ -82,9 +84,10 @@ class UserResponse(RegResponse):
 
 #************ BUSINESS MODELS ******************
 class Business(BaseModel):
-    owner_id: int
+    id: int
     name: str
     about: Optional[str]
+    category: Optional[str]
     years_of_experience: Optional[int]
     work_experience: Optional[str]
     address: Optional[str]
@@ -105,6 +108,7 @@ class Business(BaseModel):
 class BusinessAbout(BaseModel):
     name: str
     about: Optional[str]
+    category: Optional[str]
 
 class BusinessExperience(BaseModel):
     work_experience: Optional[str]

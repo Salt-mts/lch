@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from .. import models, schemas, oauth2
 from ..database import engine, get_db
 from sqlalchemy.orm import Session 
+from typing import List
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -88,11 +89,31 @@ def update_social_media(biz: schemas.BusinessSocial, db: Session = Depends(get_d
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found, create a business first")
     
-
+# ***************GET LOGGED IN USER BUSINESS AND DETAILS*******************
 @router.get("/business", status_code=status.HTTP_200_OK, response_model=schemas.Business)
-def get_personal_details(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+def get_my_business(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
     results =  db.query(models.Business).filter(current_user.id == models.Business.owner_id).first()
     if not results:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business no found, create a business.")
+    
+    return results
+
+
+# ***************GET SINGLE BUSINESSES*******************
+@router.get("/business/{id}", status_code=status.HTTP_200_OK, response_model=schemas.Business)
+def get_single_business( id: int, db: Session = Depends(get_db)):
+    results =  db.query(models.Business).filter(models.Business.id == id).first()
+    if not results:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business no found.")
+    
+    return results
+
+
+# ***************GET/QUERY BUSINESSES*******************
+@router.get("/businesses", status_code=status.HTTP_200_OK, response_model=List[schemas.Business])
+def get_all_businesses(db: Session = Depends(get_db), limit: int  = 10, search: str = '', location: str = ''):
+    results =  db.query(models.Business).limit(limit=limit).all()
+    if not results:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business no found.")
     
     return results

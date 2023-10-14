@@ -9,6 +9,7 @@ router = APIRouter(
 
 @router.post("/login", response_model=schemas.Token)
 def login(userlogin: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
+    userlogin.username = userlogin.username.lower()
     user = db.query(models.User).filter(models.User.email == userlogin.username).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid login details")

@@ -20,6 +20,7 @@ def root():
 # ***************REGISTER USER******************
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.RegResponse)
 def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
+    user.email = user.email.lower()
     #email exist
     email_exist = db.query(models.User).filter(models.User.email == user.email).first()
     if email_exist:

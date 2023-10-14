@@ -15,8 +15,9 @@ class User(Base):
     lastname = Column(String, nullable=True)
     phone = Column(String, nullable=True)
     sex = Column(String, nullable=True)
+    image = Column(String, nullable=True)
     is_active = Column(Boolean, default=True)
-    verifcation_code = Column(Integer, default=111111, nullable=False)
+    verification_code = Column(Integer, default=111111, nullable=False)
     email_verified = Column(Integer, default=0, nullable=False)
     date_created = Column(TIMESTAMP(timezone=False), server_default=text("now()"), nullable=False)
 
@@ -30,6 +31,7 @@ class Business(Base):
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name = Column(String, nullable=False)
     about = Column(Text, nullable=True)
+    category = Column(String, nullable=True)
     work_experience = Column(Text, nullable=True)
     years_of_experience = Column(Integer, nullable=True)
     address = Column(String, nullable=True)
@@ -48,16 +50,6 @@ class Business(Base):
     owner = relationship("User")
 
 
-
-class PersonalImg(Base):
-    __tablename__ = "profile_img"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    image = Column(String, nullable=False, default="user.png")
-    modified_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
-
-
 class Comments(Base):
     __tablename__ = "comments"
 
@@ -67,3 +59,12 @@ class Comments(Base):
     user_id = Column(Integer, nullable=False)
     parentuser_id = Column(Integer, nullable=True)
     date_created = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
+
+
+class Category(Base):
+    __tablename__ = "category"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=False)
+    parentcat_id = Column(Integer, nullable=False)
