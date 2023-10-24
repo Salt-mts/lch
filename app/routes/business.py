@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from .. import models, schemas, oauth2
 from ..database import engine, get_db
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session 
 from typing import List
 
@@ -109,10 +110,20 @@ def get_single_business( id: int, db: Session = Depends(get_db)):
     return results
 
 
-# ***************GET/QUERY BUSINESSES*******************
+# ***************GET ALL BUSINESSES*******************
 @router.get("/businesses", status_code=status.HTTP_200_OK, response_model=List[schemas.Business])
-def get_all_businesses(db: Session = Depends(get_db), limit: int  = 10, search: str = '', location: str = ''):
-    results =  db.query(models.Business).limit(limit=limit).all()
+def get_all_businesses(db: Session = Depends(get_db)):
+    results =  db.query(models.Business).all()
+    if not results:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business no found.")
+    
+    return results
+
+
+# ***************SEARCH/QUERY BUSINESSES*******************
+@router.get("/business/search", status_code=status.HTTP_200_OK, response_model=List[schemas.Business])
+def query_businesses(db: Session = Depends(get_db), search: str = '', limit: int  = 50, location: str = ''):
+    results =  db.query(models.Business).filter(or_(func.lower(models.Business.about).like('%' +func.lower(search) + '%'), func.lower(models.Business.city).like('%' +func.lower(location) + '%'))).limit(limit=limit).all()
     if not results:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business no found.")
     
