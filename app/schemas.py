@@ -131,3 +131,13 @@ class BusinessHour(BaseModel):
     days: Optional[str]
     hour_from: Optional[str]
     hour_to: Optional[str]
+
+
+#************ CATEGORY SCHEMA ******************
+class Category(BaseModel):
+    name: str
+    description: Optional[str]
+    parentcat_id: int
+
+class CategoryResponse(Category):
+    id: int

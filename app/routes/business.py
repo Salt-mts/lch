@@ -115,7 +115,7 @@ def get_single_business( id: int, db: Session = Depends(get_db)):
 def get_all_businesses(db: Session = Depends(get_db)):
     results =  db.query(models.Business).all()
     if not results:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business no found.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=" NO business found.")
     
     return results
 
