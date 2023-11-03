@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from .. import models, schemas, oauth2
 from ..database import engine, get_db
 from sqlalchemy.orm import Session 
-from ..utils import get_password_hash
+from ..utils import get_password_hash, verify_password
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -56,16 +56,21 @@ def update_personal_details(user: schemas.Personal, db: Session = Depends(get_db
 def update_password(user: schemas.Password, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 
     user.password = get_password_hash(user.password)
+
     query = db.query(models.User).filter(models.User.id == current_user.id)
     
     #user exist
     user_exist = query.first()
     if user_exist:
-        query.update(user.model_dump(), synchronize_session=False)
+        verfy_pass = verify_password(user.old_password, user_exist.password)
+        if not verfy_pass:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid password")
+        
+        query.update({"password": user.password}, synchronize_session=False)
         db.commit()
         return {"data": "success"}
     else:
-        return {"data": "failed"}
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"User doesn't exist")
     
 
 # ***************GET USER DETAILS*******************

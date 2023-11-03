@@ -10,6 +10,7 @@ class RegisterUser(BaseModel):
 
 class Password(BaseModel):
     password: str
+    old_password: str
 
 class User(BaseModel):
     id: int
