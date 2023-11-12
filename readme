@@ -6,10 +6,41 @@
 #following/followers(favorite business)
 #comments
 #messages(chat)
+#notification
 #certifcations/registration
-#catalog/images
+#catalog/ multiple images upload
 #query business without login
 
 
 
 #env
+
+#*****************MESSAGGING SCHEMA**************************
+# -- Table to store user information
+# CREATE TABLE Users (
+#     UserID INT PRIMARY KEY,
+#     UserName VARCHAR(255) NOT NULL
+# );
+
+# -- Table to store messages
+# CREATE TABLE Messages (
+#     MessageID INT PRIMARY KEY,
+#     SenderID INT,
+#     ReceiverID INT,
+#     MessageText TEXT,
+#     Timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     FOREIGN KEY (SenderID) REFERENCES Users(UserID),
+#     FOREIGN KEY (ReceiverID) REFERENCES Users(UserID)
+# );
+
+# -- Inserting users into the Users table
+# INSERT INTO Users (UserID, UserName) VALUES (1, 'User1');
+# INSERT INTO Users (UserID, UserName) VALUES (2, 'User2');
+
+# -- Sending a message from User1 to User2
+# INSERT INTO Messages (SenderID, ReceiverID, MessageText) VALUES (1, 2, 'Hello, User2!');
+
+# -- Retrieving messages between User1 and User2
+# SELECT * FROM Messages
+# WHERE (SenderID = 1 AND ReceiverID = 2) OR (SenderID = 2 AND ReceiverID = 1)
+# ORDER BY Timestamp;

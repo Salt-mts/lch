@@ -1,5 +1,5 @@
 from .database import Base
-from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Text
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Text, Float
 from sqlalchemy.sql.sqltypes import TIMESTAMP
 from sqlalchemy.sql.expression import text
 from sqlalchemy.orm import relationship
@@ -50,6 +50,32 @@ class Business(Base):
     owner = relationship("User")
 
 
+class Catalog(Base):
+    __tablename__ = "catalog"
+
+    id = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
+    name = Column(String, nullable=False)
+    price = Column(Float, nullable=True)
+    description = Column(Text, nullable=True)
+    image1 = Column(String, nullable=False)
+    image2 = Column(String, nullable=True)
+    image3 = Column(String, nullable=True)
+
+    business = relationship("Business") 
+
+   
+class Certifications(Base):
+    __tablename__ = "certificates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
+    name = Column(String, nullable=False)
+    image = Column(String, nullable=False)
+
+    business = relationship("Business")    
+
+
 class Comments(Base):
     __tablename__ = "comments"
 
@@ -68,3 +94,12 @@ class Category(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     parentcat_id = Column(Integer, nullable=False)
+
+
+class Image(Base):
+    __tablename__ = "images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String, nullable=False)
+    business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
+

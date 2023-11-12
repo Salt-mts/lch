@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="div"></div>
+    <script>
+        fetch("http://127.0.0.1:8000/certification/2").then(function (response) {
+            // The API call was successful!
+            return response.json();
+        }).then(function (data) {
+            // This is the JSON from our response
+            console.log(data);
+            let items = ''
+            data.forEach(element => {
+               items +=  `
+                <img id="img" src="uploads/certificate/${element.image}" alt="" width="50">
+                <p>Cert Name: <span id="name">${element.name}</span></p></div>
+                `
+                document.getElementById("div").innerHTML = items
+            });
+
+        }).catch(function (err) {
+            // There was an error
+            console.warn('Something went wrong.', err);
+        });
+    </script>
+</body>
+</html>

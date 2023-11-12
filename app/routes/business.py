@@ -121,10 +121,14 @@ def get_all_businesses(db: Session = Depends(get_db)):
 
 
 # ***************SEARCH/QUERY BUSINESSES*******************
-@router.get("/business/search", status_code=status.HTTP_200_OK, response_model=List[schemas.Business])
-def query_businesses(db: Session = Depends(get_db), search: str = '', limit: int  = 50, location: str = ''):
+@router.get("/search", status_code=status.HTTP_200_OK, response_model=List[schemas.Business])
+def query_businesses(db: Session = Depends(get_db), search: str = 'carpenter', limit: int  = 50, location: str = 'lagos'):
+
+  
     results =  db.query(models.Business).filter(or_(func.lower(models.Business.about).like('%' +func.lower(search) + '%'), func.lower(models.Business.city).like('%' +func.lower(location) + '%'))).limit(limit=limit).all()
+    
     if not results:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business no found.")
     
     return results
+

@@ -134,6 +134,36 @@ class BusinessHour(BaseModel):
     hour_to: Optional[str]
 
 
+#******************CATALOG SCHEMA ***********************
+class Catalog(BaseModel):
+    # id: int
+    # business_id: int
+    name: str
+    price: float 
+    description: Optional[str]
+    image1: str
+    image2: Optional[str]
+    image3: Optional[str]
+
+class CatalogImage(BaseModel):
+    image1: str
+    image2: Optional[str]
+    image3: Optional[str]
+
+
+
+#************ CERTIFICATION SCHEMA ******************
+class Cert(BaseModel):
+    name: str
+    image: str
+
+class CertResponse(Cert):
+    id: int
+    business_id: int
+
+
+
+
 #************ CATEGORY SCHEMA ******************
 class Category(BaseModel):
     name: str
@@ -142,3 +172,4 @@ class Category(BaseModel):
 
 class CategoryResponse(Category):
     id: int
+
