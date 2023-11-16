@@ -24,7 +24,7 @@ def verify_owner(cid, uid, db):
         return True
 
 # ***************ADD CERTIFICATE*******************
-@router.post("/certification", status_code=status.HTTP_200_OK)
+@router.post("/certification", status_code=status.HTTP_200_OK, response_model=schemas.CertResponse)
 def add_certificate(cert: schemas.Cert, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 
     query = db.query(models.Business).filter(models.Business.owner_id == current_user.id)
@@ -40,7 +40,7 @@ def add_certificate(cert: schemas.Cert, db: Session = Depends(get_db), current_u
 
 
 # ***************UPDATE CERTIFICATE*******************
-@router.put("/certification/{id}", status_code=status.HTTP_200_OK)
+@router.put("/certification/{id}", status_code=status.HTTP_200_OK, response_model=schemas.CertResponse)
 def update_certificate(id: int, cert: schemas.Cert, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 
     query = db.query(models.Certifications).filter(models.Certifications.id == id)
@@ -88,7 +88,6 @@ def upload_certificate_image(file: UploadFile ):
 @router.delete('/certification/{id}')
 def delete_certificate(id: int, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
     query = db.query(models.Certifications).filter(models.Certifications.id == id)
-    test = db.query(models.Business).join(models.Certifications).filter()
     if not query.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Certificate not found")
 
@@ -104,7 +103,7 @@ def delete_certificate(id: int, db: Session = Depends(get_db), current_user: str
 
 # ***************GET CERTIFICATE*******************
 @router.get('/certification/{business_id}', status_code=status.HTTP_200_OK, response_model=List[schemas.CertResponse])
-def get_certificate(business_id: int, db: Session = Depends(get_db)):
+def get_certificates(business_id: int, db: Session = Depends(get_db)):
     query = db.query(models.Certifications).filter(models.Certifications.business_id == business_id).all()
     if not query:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No certificates found")   

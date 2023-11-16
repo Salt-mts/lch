@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 # ***********USER SCHEMAS*************
 class RegisterUser(BaseModel):
@@ -83,7 +83,37 @@ class UserResponse(RegResponse):
         from_attributes = True
 
 
+
+#******************CATALOG SCHEMA ***********************
+class Catalog(BaseModel):
+    name: str
+    price: Optional[float] 
+    description: Optional[str]
+    image1: str
+    image2: Optional[str]
+    image3: Optional[str]
+
+class CatalogResponse(Catalog):
+    id: int
+
+class CatalogImage(BaseModel):
+    image1: str
+    image2: Optional[str]
+    image3: Optional[str]
+
+
+
+#************ CERTIFICATION SCHEMA ******************
+class Cert(BaseModel):
+    name: str
+    image: str
+
+class CertResponse(Cert):
+    id: int
+
+
 #************ BUSINESS MODELS ******************
+
 class Business(BaseModel):
     id: int
     name: str
@@ -104,6 +134,9 @@ class Business(BaseModel):
     twitter: Optional[str]
     linkedin: Optional[str]
     owner: UserOut
+    catalog: List[CatalogResponse]
+    certifications: List[CertResponse]
+    # comment: List[Comment]
 
 
 class BusinessAbout(BaseModel):
@@ -134,32 +167,7 @@ class BusinessHour(BaseModel):
     hour_to: Optional[str]
 
 
-#******************CATALOG SCHEMA ***********************
-class Catalog(BaseModel):
-    # id: int
-    # business_id: int
-    name: str
-    price: float 
-    description: Optional[str]
-    image1: str
-    image2: Optional[str]
-    image3: Optional[str]
 
-class CatalogImage(BaseModel):
-    image1: str
-    image2: Optional[str]
-    image3: Optional[str]
-
-
-
-#************ CERTIFICATION SCHEMA ******************
-class Cert(BaseModel):
-    name: str
-    image: str
-
-class CertResponse(Cert):
-    id: int
-    business_id: int
 
 
 

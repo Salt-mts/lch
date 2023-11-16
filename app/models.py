@@ -48,6 +48,9 @@ class Business(Base):
     linkedin = Column(String, nullable=True)
 
     owner = relationship("User")
+    catalog = relationship("Catalog")
+    certifications = relationship("Certifications")
+    comments = relationship("Comments")
 
 
 class Catalog(Base):
@@ -75,16 +78,17 @@ class Certifications(Base):
 
     business = relationship("Business")    
 
-
+ 
 class Comments(Base):
     __tablename__ = "comments"
 
     id = Column(Integer, primary_key=True, index=True)
     msg = Column(Text, nullable=False)
     business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(Integer, nullable=False)
-    parentuser_id = Column(Integer, nullable=True)
+    user_id = Column(Integer, nullable=False)    
     date_created = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
+    
+    business = relationship("Business")
 
 
 class Category(Base):
@@ -96,10 +100,5 @@ class Category(Base):
     parentcat_id = Column(Integer, nullable=False)
 
 
-class Image(Base):
-    __tablename__ = "images"
 
-    id = Column(Integer, primary_key=True, index=True)
-    filename = Column(String, nullable=False)
-    business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
 
