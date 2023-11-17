@@ -65,8 +65,6 @@ class Catalog(Base):
     image2 = Column(String, nullable=True)
     image3 = Column(String, nullable=True)
 
-    business = relationship("Business") 
-
    
 class Certifications(Base):
     __tablename__ = "certificates"
@@ -76,7 +74,6 @@ class Certifications(Base):
     name = Column(String, nullable=False)
     image = Column(String, nullable=False)
 
-    business = relationship("Business")    
 
  
 class Comments(Base):
@@ -85,10 +82,10 @@ class Comments(Base):
     id = Column(Integer, primary_key=True, index=True)
     msg = Column(Text, nullable=False)
     business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
-    user_id = Column(Integer, nullable=False)    
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)    
     date_created = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
     
-    business = relationship("Business")
+    commenter = relationship("User")
 
 
 class Category(Base):

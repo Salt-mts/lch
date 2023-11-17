@@ -112,6 +112,20 @@ class CertResponse(Cert):
     id: int
 
 
+#******************COMMENTS SCHEMA ***********************
+class Comment(BaseModel):
+    msg: str
+
+class CommentResponse(Comment):
+    id: int
+    business_id: int
+    user_id: int
+    commenter: UserOut
+
+class Commenter(BaseModel):
+    user_id: int
+
+
 #************ BUSINESS MODELS ******************
 
 class Business(BaseModel):
@@ -136,7 +150,7 @@ class Business(BaseModel):
     owner: UserOut
     catalog: List[CatalogResponse]
     certifications: List[CertResponse]
-    # comment: List[Comment]
+    comments: List[CommentResponse]
 
 
 class BusinessAbout(BaseModel):

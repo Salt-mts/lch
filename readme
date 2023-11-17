@@ -4,15 +4,16 @@
 
 
 #following/followers(favorite business)
-#comments
 #messages(chat)
 #notification
-#certifcations/registration
 #catalog/ multiple images upload
 #query business without login
+category image
 
 
-
+*********************DONE*****************
+#certifcations/registration
+#comments
 #env
 
 #*****************MESSAGGING SCHEMA**************************

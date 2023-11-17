@@ -1,12 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from .. import models, schemas, oauth2
+from .. import models, schemas
 from ..database import engine, get_db
-from sqlalchemy import func, or_
 from sqlalchemy.orm import Session 
 from typing import List
-
-models.Base.metadata.create_all(bind=engine)
-
 
 router = APIRouter(
     tags=['category']

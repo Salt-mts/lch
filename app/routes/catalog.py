@@ -9,7 +9,6 @@ import shutil
 import os
 import uuid
 
-models.Base.metadata.create_all(bind=engine)
 
 
 router = APIRouter(

@@ -5,10 +5,11 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from . import schemas, database, models
 from sqlalchemy.orm import Session 
+from .config import settings
 
-SECRET_KEY = "9c2d824a83b079196097136b32b3595e2b551da981c2a4ba7fb11aca56b50e22"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = settings.secret_key
+ALGORITHM = settings.algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
