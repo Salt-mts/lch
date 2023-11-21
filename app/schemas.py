@@ -58,7 +58,7 @@ class TokenData(BaseModel):
     id: Optional[int] = None
 
 
-#************ RESPOSNSE MODELS ******************
+#************ RESPOSNSE SCHEMAS ******************
 class RegResponse(BaseModel):
     id: int
     email: EmailStr
@@ -84,7 +84,7 @@ class UserResponse(RegResponse):
 
 
 
-#******************CATALOG SCHEMA ***********************
+#******************CATALOG SCHEMAS ***********************
 class Catalog(BaseModel):
     name: str
     price: Optional[float] 
@@ -103,7 +103,7 @@ class CatalogImage(BaseModel):
 
 
 
-#************ CERTIFICATION SCHEMA ******************
+#************ CERTIFICATION SCHEMAs ******************
 class Cert(BaseModel):
     name: str
     image: str
@@ -112,7 +112,7 @@ class CertResponse(Cert):
     id: int
 
 
-#******************COMMENTS SCHEMA ***********************
+#******************COMMENTS SCHEMAS ***********************
 class Comment(BaseModel):
     msg: str
 
@@ -126,7 +126,27 @@ class Commenter(BaseModel):
     user_id: int
 
 
-#************ BUSINESS MODELS ******************
+
+#************ CONVERSATION SCHEMAS ******************
+class Conversation(BaseModel):
+    conversation_id: str
+    sender_id: int
+    receiver_id: int
+    
+
+#************ MESSAGE SCHEMAS ******************
+class Message(BaseModel):
+    message: Optional[str]
+    image: Optional[str]
+
+class MessageResponse(Message):
+    id: int
+    conversation_id: str
+    read: int
+    date_added: datetime
+    
+
+#************ BUSINESS SCHEMAS ******************
 
 class Business(BaseModel):
     id: int

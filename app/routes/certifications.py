@@ -58,7 +58,7 @@ def update_certificate(id: int, cert: schemas.Cert, db: Session = Depends(get_db
 
 
 
-# ***************UPLOAD CATALOG IMAGE*******************
+# ***************UPLOAD CERTIFICATE IMAGE*******************
 @router.post("/certification/upload/")
 def upload_certificate_image(file: UploadFile ):
 
