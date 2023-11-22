@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, status, File, UploadFile
+from fastapi import APIRouter, HTTPException, Depends, status, UploadFile
 from .. import models, schemas, oauth2
 from ..database import engine, get_db
 from sqlalchemy.orm import Session 
@@ -21,6 +21,32 @@ def verify_owner(cid, uid, db):
     cert = db.query(models.Certifications).filter(models.Certifications.id == cid).first()
     if biz.id == cert.business_id:
         return True
+
+
+# ***************UPLOAD CERTIFICATE IMAGE*******************
+@router.post("/certification/upload/")
+def upload_certificate_image(file: UploadFile ):
+
+    # Define the directory to save uploaded images
+    UPLOAD_DIRECTORY = "uploads/certificate/"
+
+    # Create the upload directory if it doesn't exist
+    os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+
+    # Generate a unique filename for the uploaded image
+    file_extension = file.filename.split(".")[-1]
+    filename = f"{str(uuid.uuid4())}.{file_extension}"
+    
+    try:
+        # Save the uploaded file to the specified directory
+        with open(os.path.join(UPLOAD_DIRECTORY+filename), "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        return {"filename" : filename}
+    
+    except Exception as e:
+        return JSONResponse(content={"message": f"Failed to upload file: {str(e)}"}, status_code=500)
+    
 
 # ***************ADD CERTIFICATE*******************
 @router.post("/certification", status_code=status.HTTP_200_OK, response_model=schemas.CertResponse)
@@ -56,32 +82,6 @@ def update_certificate(id: int, cert: schemas.Cert, db: Session = Depends(get_db
     return query.first()
 
 
-
-
-# ***************UPLOAD CERTIFICATE IMAGE*******************
-@router.post("/certification/upload/")
-def upload_certificate_image(file: UploadFile ):
-
-    # Define the directory to save uploaded images
-    UPLOAD_DIRECTORY = "uploads/certificate/"
-
-    # Create the upload directory if it doesn't exist
-    os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
-
-    # Generate a unique filename for the uploaded image
-    file_extension = file.filename.split(".")[-1]
-    filename = f"{str(uuid.uuid4())}.{file_extension}"
-    
-    try:
-        # Save the uploaded file to the specified directory
-        with open(os.path.join(UPLOAD_DIRECTORY+filename), "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        
-        return {"filename" : filename}
-    
-    except Exception as e:
-        return JSONResponse(content={"message": f"Failed to upload file: {str(e)}"}, status_code=500)
-    
 
 # ***************DELETE CERTIFICATE*******************
 @router.delete('/certification/{id}')

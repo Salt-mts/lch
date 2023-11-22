@@ -109,14 +109,24 @@ class Conversations(Base):
     receiver_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
 
+class Rating(Base):
+    __tablename__ = "rating"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
+    rating = Column(Integer, nullable=False)
+    date_created = Column(TIMESTAMP(timezone=False), server_default=text("now()"), nullable=False)
+
 
 class Category(Base):
     __tablename__ = "category"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    description = Column(String, nullable=False)
-    parentcat_id = Column(Integer, nullable=False)
+    image = Column(String, nullable=False, default="default.png")
+    description = Column(String, nullable=True)
+    parent_id = Column(Integer, nullable=False, default=0)
 
 
 

@@ -144,6 +144,17 @@ class MessageResponse(Message):
     conversation_id: str
     read: int
     date_added: datetime
+
+
+#************ RATING SCHEMAS ******************
+class Rating(BaseModel):
+    rating: int
+
+class RatingResponse(Rating):
+    id: int
+    business_id: int
+    user_id: int
+    date_added: datetime
     
 
 #************ BUSINESS SCHEMAS ******************
@@ -209,8 +220,9 @@ class BusinessHour(BaseModel):
 #************ CATEGORY SCHEMA ******************
 class Category(BaseModel):
     name: str
+    image: Optional[str]
     description: Optional[str]
-    parentcat_id: int
+    parent_id: int
 
 class CategoryResponse(Category):
     id: int
