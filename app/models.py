@@ -86,27 +86,28 @@ class Comments(Base):
     date_created = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
     
     commenter = relationship("User")
+    
+
+class Conversations(Base):
+    __tablename__ = "conversations"
+
+    id = Column(Integer, primary_key=True, index=True)
+    conversation_id = Column(String, unique=True, nullable=False)
+    sender_id = Column(Integer,  ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    receiver_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
 
 class Messages(Base):
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True, index=True)
-    conversation_id = Column(String, ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False)
+    conversation_id = Column(String, ForeignKey("conversations.conversation_id", ondelete="CASCADE"), nullable=False)
     message = Column(Text, nullable=True)
     image = Column(String, nullable=True)
     read = Column(Integer, nullable=False, default=0)
     date_added = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
 
 
-
-class Conversations(Base):
-    __tablename__ = "conversations"
-
-    id = Column(Integer, primary_key=True, index=True)
-    conversation_id = Column(String, nullable=False)
-    sender_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    receiver_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
 
 class Rating(Base):
