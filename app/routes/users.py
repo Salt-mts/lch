@@ -1,10 +1,12 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, UploadFile
 from .. import models, schemas, oauth2
 from ..database import engine, get_db
 from sqlalchemy.orm import Session 
 from ..utils import get_password_hash, verify_password
-
-models.Base.metadata.create_all(bind=engine)
+from fastapi.responses import JSONResponse
+import shutil
+import os
+import uuid
 
 
 router = APIRouter(
@@ -72,6 +74,47 @@ def update_password(user: schemas.Password, db: Session = Depends(get_db), curre
     else:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"User doesn't exist")
     
+
+# ***************UPLOAD USER IMAGE*******************
+@router.post("/user/upload/")
+def upload_user_image(file: UploadFile ):
+
+    # Define the directory to save uploaded images
+    UPLOAD_DIRECTORY = "uploads/users/"
+
+    # Create the upload directory if it doesn't exist
+    os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+
+    # Generate a unique filename for the uploaded image
+    file_extension = file.filename.split(".")[-1]
+    filename = f"{str(uuid.uuid4())}.{file_extension}"
+    
+    try:
+        # Save the uploaded file to the specified directory
+        with open(os.path.join(UPLOAD_DIRECTORY+filename), "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        return {"filename" : filename}
+    
+    except Exception as e:
+        return JSONResponse(content={"message": f"Failed to upload file: {str(e)}"}, status_code=500)
+ 
+
+# ***************UPDATE IMAGE*******************
+@router.post("/user/image", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+def update_personal_image(img: schemas.PersonalImg, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+    query = db.query(models.User).filter(models.User.id == current_user.id)
+    
+    #details exist
+    details_exist = query.first()
+    if details_exist:
+        query.update(img.model_dump(), synchronize_session=False)
+        db.commit()
+        return query.first()
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+
 
 # ***************GET USER DETAILS*******************
 @router.get("/user", status_code=status.HTTP_200_OK, response_model=schemas.UserOut)

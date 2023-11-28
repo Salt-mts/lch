@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, status
-from .. import models, schemas, oauth2
+from .. import models, schemas, oauth2, utils
 from ..database import get_db
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session 
@@ -14,6 +14,7 @@ router = APIRouter(
 def add_business(biz: schemas.BusinessAbout, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 
     query = db.query(models.Business).filter(models.Business.owner_id == current_user.id)
+    random = utils.generate_unique_id(15)
 
     #details exist
     details_exist = query.first()
@@ -23,7 +24,7 @@ def add_business(biz: schemas.BusinessAbout, db: Session = Depends(get_db), curr
         return query.first()
     else:
         # insert = models.Business(owner_id = current_user.id, name = biz.name, about = biz.about)
-        insert = models.Business(owner_id = current_user.id, **biz.model_dump())
+        insert = models.Business(owner_id = current_user.id, bid = random, **biz.model_dump())
         db.add(insert)
         db.commit()
         db.refresh(insert)

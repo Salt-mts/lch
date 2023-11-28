@@ -46,7 +46,6 @@ class Personal(BaseModel):
     sex: Optional[str]
 
 class PersonalImg(BaseModel):
-    user_id: int
     image: str
 
 # authentication
@@ -161,6 +160,7 @@ class RatingResponse(Rating):
 
 class Business(BaseModel):
     id: int
+    bid: str
     name: str
     about: Optional[str]
     category: Optional[str]

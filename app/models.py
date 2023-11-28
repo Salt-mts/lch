@@ -15,7 +15,7 @@ class User(Base):
     lastname = Column(String, nullable=True)
     phone = Column(String, nullable=True)
     sex = Column(String, nullable=True)
-    image = Column(String, nullable=True)
+    image = Column(String, default="default.png", nullable=True)
     is_active = Column(Boolean, default=True)
     verification_code = Column(Integer, default=111111, nullable=False)
     email_verified = Column(Integer, default=0, nullable=False)
@@ -28,6 +28,7 @@ class Business(Base):
     __tablename__ = "business"
 
     id = Column(Integer, primary_key=True, index=True)
+    bid = Column(String, nullable=False)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name = Column(String, nullable=False)
     about = Column(Text, nullable=True)
