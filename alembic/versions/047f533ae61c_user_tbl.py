@@ -34,7 +34,6 @@ def upgrade() -> None:
                     sa.Column('date_created', sa.TIMESTAMP(timezone=True), nullable=False, server_default=sa.text('now()')),
 
                     sa.PrimaryKeyConstraint("id"),
-                    sa.UniqueConstraint("unik"),
                     sa.UniqueConstraint("email")
                     )
     pass

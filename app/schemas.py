@@ -154,7 +154,18 @@ class RatingResponse(Rating):
     business_id: int
     user_id: int
     date_added: datetime
-    
+
+
+#************ SUBSCRIPTION SCHEMAS ******************
+class SubscriptionResponse(BaseModel):
+    is_active: bool = False
+
+class Subscription(BaseModel):
+    start_date: datetime
+    end_date: datetime
+
+class SubscriptionRenew(BaseModel):
+    days: int
 
 #************ BUSINESS SCHEMAS ******************
 
@@ -178,7 +189,9 @@ class Business(BaseModel):
     instagram: Optional[str]
     twitter: Optional[str]
     linkedin: Optional[str]
+    is_active: bool
     owner: UserOut
+    subscription: List[SubscriptionResponse]
     catalog: List[CatalogResponse]
     certifications: List[CertResponse]
     comments: List[CommentResponse]

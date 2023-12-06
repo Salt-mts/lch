@@ -28,7 +28,7 @@ class Business(Base):
     __tablename__ = "business"
 
     id = Column(Integer, primary_key=True, index=True)
-    bid = Column(String, nullable=False)
+    bid = Column(String, nullable=False, unique=True)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name = Column(String, nullable=False)
     about = Column(Text, nullable=True)
@@ -47,7 +47,10 @@ class Business(Base):
     instagram = Column(String, nullable=True)
     twitter = Column(String, nullable=True)
     linkedin = Column(String, nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    tag = Column(Text, nullable=False)
 
+    subscription = relationship("Subscription")
     owner = relationship("User")
     catalog = relationship("Catalog")
     certifications = relationship("Certifications")
@@ -131,5 +134,12 @@ class Category(Base):
     parent_id = Column(Integer, nullable=False, default=0)
 
 
+class Subscription(Base):
+    __tablename__ = "subscriptions"
 
+    id = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    start_date = Column(TIMESTAMP(timezone=True), nullable=False)
+    end_date = Column(TIMESTAMP(timezone=True), nullable=False)
 

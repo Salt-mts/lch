@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routes import users, auth, business, category, catalog, certifications, comments, messages, rating
+from .routes import users, auth, business, category, catalog, certifications, comments, messages, rating, subscriptions
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine
@@ -32,4 +32,5 @@ app.include_router(catalog.router)
 app.include_router(certifications.router)
 app.include_router(comments.router)
 app.include_router(rating.router)
+app.include_router(subscriptions.router)
 app.include_router(category.router)
