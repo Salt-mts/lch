@@ -33,6 +33,7 @@ class Business(Base):
     name = Column(String, nullable=False)
     about = Column(Text, nullable=True)
     category = Column(String, nullable=True)
+    tag = Column(Text, nullable=False)
     work_experience = Column(Text, nullable=True)
     years_of_experience = Column(Integer, nullable=True)
     address = Column(String, nullable=True)
@@ -48,7 +49,6 @@ class Business(Base):
     twitter = Column(String, nullable=True)
     linkedin = Column(String, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
-    tag = Column(Text, nullable=False)
 
     subscription = relationship("Subscription")
     owner = relationship("User")
@@ -140,6 +140,15 @@ class Subscription(Base):
     id = Column(Integer, primary_key=True, index=True)
     business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
+    start_date = Column(TIMESTAMP(timezone=True), nullable=False)
+    end_date = Column(TIMESTAMP(timezone=True), nullable=False)
+
+
+class SubHistory(Base):
+    __tablename__ = "sub_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
     start_date = Column(TIMESTAMP(timezone=True), nullable=False)
     end_date = Column(TIMESTAMP(timezone=True), nullable=False)
 

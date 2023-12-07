@@ -21,13 +21,16 @@ def add_rating(business_id: int, rate: schemas.Rating, db: Session = Depends(get
     biz = db.query(models.Business).filter(models.Business.id == business_id)
 
     if not biz.first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"no business with id of {business_id}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No business with id of {business_id}!")
     
+    if biz.first().owner_id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"You cannot rate your own business!")
+     
     if query.first():
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"You already rated this business")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"You already rated this business!")
     
     if rate.rating < 1 or rate.rating > 5:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"You can only rate from 1 - 5")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"You can only rate from 1 - 5!")
     
     insert = models.Rating(business_id = business_id, user_id = current_user.id, **rate.model_dump())
     db.add(insert)

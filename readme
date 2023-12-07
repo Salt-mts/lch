@@ -5,10 +5,13 @@
 
 
 #following/followers(favorite business)
+
 #messages(chat)
+
 #notification
+
 #catalog/ multiple images upload
-#query business without login
+
 #premium
 
 
@@ -18,4 +21,5 @@
 #env
 #category image
 
-#add unik to business and user registration
+#restrict renewal of yearly subscription until expires of few months left
+#add unik to business registration

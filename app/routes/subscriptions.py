@@ -3,7 +3,7 @@ from .. import models, schemas, oauth2
 from ..database import get_db
 from sqlalchemy.orm import Session 
 from sqlalchemy import func, desc
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 
 
 
@@ -17,12 +17,30 @@ router = APIRouter(
 @router.post("/monthly_sub/{business_id}", status_code=status.HTTP_200_OK, response_model=schemas.Subscription)
 def monthly_sub(business_id: int, db: Session = Depends(get_db)):
 
+    # check if there's an expired subscription
+    expire = db.query(models.Subscription).filter(models.Subscription.business_id == business_id, models.Subscription.is_active == 'false' )
+
+    if expire.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"This business has an expired subscription, renew it.")
+    
+    # check if there's a running subscription
+    exist = db.query(models.Subscription).filter(models.Subscription.business_id == business_id, models.Subscription.is_active == 'true' )
+
+    if exist.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"This business has a running subscription, you can only renew it.")
+    
+    #check if business exist
     query = db.query(models.Business).filter(models.Business.id == business_id)
     if not query.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No business with id of {business_id} found")
 
     startdate = datetime.now()
     enddate = startdate + timedelta(days=30)
+
+    hist = models.SubHistory(business_id = business_id, start_date = startdate, end_date = enddate)
+    db.add(hist)
+    db.commit()
+    db.refresh(hist)
 
     insert = models.Subscription(business_id = business_id, start_date = startdate, end_date = enddate)
     db.add(insert)
@@ -34,12 +52,30 @@ def monthly_sub(business_id: int, db: Session = Depends(get_db)):
 @router.post("/yearly_sub/{business_id}", status_code=status.HTTP_200_OK, response_model=schemas.Subscription)
 def yearly_sub(business_id: int, db: Session = Depends(get_db)):
 
+    # check if there's an expired subscription
+    expire = db.query(models.Subscription).filter(models.Subscription.business_id == business_id, models.Subscription.is_active == 'false' )
+
+    if expire.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"This business has an expired subscription, renew it.")
+    
+    # check if there's a running subscription
+    exist = db.query(models.Subscription).filter(models.Subscription.business_id == business_id, models.Subscription.is_active == 'true' )
+
+    if exist.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"This business has a running subscription, you can only renew it.")
+    
+    #check if business exist
     query = db.query(models.Business).filter(models.Business.id == business_id)
     if not query.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No business with id of {business_id} found")
 
     startdate = datetime.now()
     enddate = startdate + timedelta(days=365)
+
+    hist = models.SubHistory(business_id = business_id, start_date = startdate, end_date = enddate)
+    db.add(hist)
+    db.commit()
+    db.refresh(hist)
 
     insert = models.Subscription(business_id = business_id, start_date = startdate, end_date = enddate)
     db.add(insert)
@@ -52,14 +88,29 @@ def yearly_sub(business_id: int, db: Session = Depends(get_db)):
 @router.post("/renew_monthly_sub/{business_id}", status_code=status.HTTP_200_OK, response_model=schemas.Subscription)
 def renew_monthly_sub(business_id: int,  db: Session = Depends(get_db)):
 
-    query = db.query(models.Subscription).filter(models.Subscription.business_id == business_id).order_by(desc(models.Subscription.id))
-    if not query.first().is_active:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"No active subscription! Start a new subscription")
+    #check it the business have a subscrition history
+    query = db.query(models.Subscription).filter(models.Subscription.business_id == business_id)
+    if not query.first():
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"No subscription history! Start a new subscription")
 
-    startdate = query.first().end_date
-    enddate = startdate + timedelta(days=30)
+    startdate = datetime.now(timezone.utc)
+    current_enddate = query.first().end_date
 
-    insert = models.Subscription(business_id = business_id, start_date = startdate, end_date = enddate)
+    new_enddate = query.first().end_date + timedelta(days=30)
+
+    # restrict renewal when you still have at least 60days active subscrition
+    print((current_enddate - startdate).days)
+    if (current_enddate - startdate).days > 60:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"You cannot renew a subscruption that still have 60 days before expiration")
+
+    
+    #update subscription table
+    query.first().start_date = startdate
+    query.first().end_date = new_enddate
+
+    
+    #insert into history
+    insert = models.SubHistory(business_id = business_id, start_date = startdate, end_date = new_enddate)
     db.add(insert)
     db.commit()
     db.refresh(insert)
@@ -69,16 +120,32 @@ def renew_monthly_sub(business_id: int,  db: Session = Depends(get_db)):
 @router.post("/renew_yearly_sub/{business_id}", status_code=status.HTTP_200_OK, response_model=schemas.Subscription)
 def renew_yearly_sub(business_id: int,  db: Session = Depends(get_db)):
 
-    query = db.query(models.Subscription).filter(models.Subscription.business_id == business_id).order_by(desc(models.Subscription.id))
-    if not query.first().is_active:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"No active subscription! Start a new subscription")
+    #check it the business have a subscrition history
+    query = db.query(models.Subscription).filter(models.Subscription.business_id == business_id)
+    if not query.first():
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"No subscription history! Start a new subscription")
 
-    startdate = query.first().end_date
-    enddate = startdate + timedelta(days=365)
+    startdate = datetime.now(timezone.utc)
+    current_enddate = query.first().end_date
 
-    insert = models.Subscription(business_id = business_id, start_date = startdate, end_date = enddate)
+    new_enddate = query.first().end_date + timedelta(days=365)
+
+    # restrict renewal when you still have at least 60days active subscrition (price may change)
+    print((current_enddate - startdate).days)
+    if (current_enddate - startdate).days > 60:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"You cannot renew a subscruption that still have 60 days before expiration")
+
+    
+    #update subscription table
+    query.first().start_date = startdate
+    query.first().end_date = new_enddate
+
+    
+    #insert into history
+    insert = models.SubHistory(business_id = business_id, start_date = startdate, end_date = new_enddate)
     db.add(insert)
     db.commit()
     db.refresh(insert)
     return insert
+
 

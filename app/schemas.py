@@ -158,7 +158,7 @@ class RatingResponse(Rating):
 
 #************ SUBSCRIPTION SCHEMAS ******************
 class SubscriptionResponse(BaseModel):
-    is_active: bool = False
+    is_active: bool
 
 class Subscription(BaseModel):
     start_date: datetime
