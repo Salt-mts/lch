@@ -48,6 +48,14 @@ class Personal(BaseModel):
 class PersonalImg(BaseModel):
     image: str
 
+class ResetPassword(BaseModel):
+    email: EmailStr
+
+class VerifyResetPassword(BaseModel):
+    password: str
+    confirm_password: str
+
+
 # authentication
 class Token(BaseModel):
     access_token: str

@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routes import users, auth, business, category, catalog, certifications, comments, messages, rating, subscriptions
+from .routes import users, auth, business, category, catalog, certifications, comments, messages, rating, subscriptions, reset_password
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine
@@ -26,6 +26,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(reset_password.router)
 app.include_router(business.router)
 app.include_router(messages.router)
 app.include_router(catalog.router)

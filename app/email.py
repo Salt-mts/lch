@@ -40,3 +40,16 @@ async def welcome_email(subject: str, recipients: str, body: dict) -> JSONRespon
 
     fm = FastMail(conf)
     await fm.send_message(message, template_name="welcome_email.html") 
+
+
+
+async def pass_reset_email(subject: str, recipients: str, body: dict) -> JSONResponse:
+    message = MessageSchema(
+        subject=subject,
+        recipients=[recipients],
+        template_body=body,
+        subtype='html',
+        )
+
+    fm = FastMail(conf)
+    await fm.send_message(message, template_name="pass_reset_email.html") 

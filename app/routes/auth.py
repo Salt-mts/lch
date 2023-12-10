@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, HTTPException
+from fastapi import APIRouter, Depends, status, HTTPException, Header
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from .. import database, schemas, models, utils, oauth2
@@ -20,6 +20,15 @@ def login(userlogin: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     
 
     #create a token
-    # return token
     access_token = oauth2.create_access_token(data = {"user_id": user.id})
+
+    # return token
     return {"access_token": access_token, "token_type":"bearer"}
+
+
+
+
+# @router.post("/logout")
+# def user_logout(Authorization: str = Header(None)):
+#     oauth2.oauth2_scheme.revoke_token(Authorization)
+#     return {"message": "Token revoked"}
