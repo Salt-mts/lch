@@ -1,4 +1,5 @@
-fastapi[all]
+fastapi
+uvicorn
 alembic==1.12.0
 SQLAlchemy==2.0.21
 python-jose[cryptography]
