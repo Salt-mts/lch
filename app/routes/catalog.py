@@ -102,7 +102,7 @@ def delete_catalog(id: int, db: Session = Depends(get_db), current_user: str = D
 
 # ***************GET CATALOG*******************
 @router.get('/catalog/{business_id}', status_code=status.HTTP_200_OK, response_model=List[schemas.CatalogResponse])
-def get_certificate(business_id: int, db: Session = Depends(get_db)):
+def get_catalog(business_id: int, db: Session = Depends(get_db)):
     query = db.query(models.Catalog).filter(models.Catalog.business_id == business_id).all()
     if not query:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No certificates found")   

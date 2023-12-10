@@ -4,3 +4,4 @@ SQLAlchemy==2.0.21
 python-jose[cryptography]
 psycopg2==2.9.7
 passlib[bcrypt]
+fastapi-mail

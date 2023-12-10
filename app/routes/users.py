@@ -2,12 +2,13 @@ from fastapi import APIRouter, HTTPException, Depends, status, UploadFile
 from .. import models, schemas, oauth2
 from ..database import engine, get_db
 from sqlalchemy.orm import Session 
-from ..utils import get_password_hash, verify_password
+from ..utils import get_password_hash, verify_password, baseURL, generate_unique_id
 from fastapi.responses import JSONResponse
 import shutil
 import os
 import uuid
-
+from ..email import welcome_email
+import random
 
 router = APIRouter(
     tags=["User"]
@@ -21,20 +22,46 @@ def root():
 
 # ***************REGISTER USER******************
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.RegResponse)
-def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
+async def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
     user.email = user.email.lower()
     #email exist
     email_exist = db.query(models.User).filter(models.User.email == user.email).first()
     if email_exist:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email exist in our database")
     
-
+    verification_code = random.randint(100000, 999999)
+    fake_code = generate_unique_id(25)
     user.password = get_password_hash(user.password)
-    new_uza =  models.User(**user.model_dump())
+
+    new_uza =  models.User(verification_code = verification_code, **user.model_dump())
     db.add(new_uza)
     db.commit()
     db.refresh(new_uza)
+
+    # send welcome email
+    await welcome_email("Email Confirmation", user.email, {
+        "token": f"{baseURL}register/{user.email}/{verification_code}/{fake_code}",
+        "baseURL": baseURL
+    } )
     return new_uza
+
+
+# ***************EMAIL CONFIRMATION******************
+@router.get("/register/{email}/{verify}/{code}", status_code=status.HTTP_201_CREATED)
+def verify_email(email: str, verify: int, db: Session = Depends(get_db)):
+    query = db.query(models.User).filter(models.User.email == email, models.User.verification_code == verify)
+
+    # if email and code not found
+    if not query.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Verification failed! Email not found, or already verified.")
+
+    # if email and code is found
+    if query.first():
+        query.first().verification_code = 100001
+        query.first().email_verified = 1
+        db.commit()
+        return {"data":"success"}
+
 
 
 # ***************PERSONAL DETAILS*******************

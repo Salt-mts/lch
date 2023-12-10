@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 
 # ***********USER SCHEMAS*************
 class RegisterUser(BaseModel):
@@ -239,4 +239,5 @@ class Category(BaseModel):
 
 class CategoryResponse(Category):
     id: int
+
 

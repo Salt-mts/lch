@@ -19,7 +19,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.add_column("business", sa.Column("bid", sa.String(), unique=True, nullable=False))
+    op.add_column("business", sa.Column("bid", sa.String(), unique=True))
     pass
 
 
