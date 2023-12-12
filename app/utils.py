@@ -16,5 +16,5 @@ def generate_unique_id(len):
     return secrets.token_hex(len)
 
 
-baseURL = 'http://127.0.0.1:8000/'
-# baseURL = 'https://labour-6kd3.onrender.com/'
+# baseURL = 'http://127.0.0.1:8000/'
+baseURL = 'https://labour-6kd3.onrender.com/'
