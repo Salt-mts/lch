@@ -96,9 +96,7 @@ class Catalog(BaseModel):
     name: str
     price: Optional[float] 
     description: Optional[str]
-    image1: str
-    image2: Optional[str]
-    image3: Optional[str]
+    images: str
 
 class CatalogResponse(Catalog):
     id: int
@@ -183,6 +181,7 @@ class Business(BaseModel):
     name: str
     about: Optional[str]
     category: Optional[str]
+    image: Optional[str]
     years_of_experience: Optional[int]
     work_experience: Optional[str]
     address: Optional[str]
@@ -232,7 +231,8 @@ class BusinessHour(BaseModel):
     hour_from: Optional[str]
     hour_to: Optional[str]
 
-
+class BusinessImage(BaseModel):
+    image: str
 
 
 

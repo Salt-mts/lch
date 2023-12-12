@@ -33,6 +33,7 @@ class Business(Base):
     name = Column(String, nullable=False)
     about = Column(Text, nullable=True)
     category = Column(String, nullable=True)
+    image = Column(String, nullable=True)
     tag = Column(Text, nullable=False)
     work_experience = Column(Text, nullable=True)
     years_of_experience = Column(Integer, nullable=True)
@@ -65,9 +66,7 @@ class Catalog(Base):
     name = Column(String, nullable=False)
     price = Column(Float, nullable=True)
     description = Column(Text, nullable=True)
-    image1 = Column(String, nullable=False)
-    image2 = Column(String, nullable=True)
-    image3 = Column(String, nullable=True)
+    images = Column(String, nullable=False)
 
    
 class Certifications(Base):

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, status, File, UploadFile
-from .. import models, schemas, oauth2
+from .. import models, schemas, oauth2, utils
 from ..database import engine, get_db
 from sqlalchemy.orm import Session 
 from typing import List
@@ -24,10 +24,9 @@ def verify_owner(cid, uid, db):
         return True
 
 
-
 # ***************UPLOAD CATALOG IMAGE*******************
 @router.post("/catalog/upload/")
-def upload_catalog_image(file: UploadFile ):
+def upload_catalog_image(files: List[UploadFile] = File(...) ):
 
     # Define the directory to save uploaded images
     UPLOAD_DIRECTORY = "uploads/catalog/"
@@ -35,19 +34,38 @@ def upload_catalog_image(file: UploadFile ):
     # Create the upload directory if it doesn't exist
     os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
-    # Generate a unique filename for the uploaded image
-    file_extension = file.filename.split(".")[-1]
-    filename = f"{str(uuid.uuid4())}.{file_extension}"
+    uploaded_images = []
     
-    try:
+    for file in files:
+        # Generate a unique filename for the uploaded image
+        file_extension = file.filename.split(".")[-1]
+        newfilename = f"{utils.generate_unique_id(15)}.{file_extension}"
+
+        # For demonstration purposes, we'll just store the filename and content type.
+        file_name = newfilename
+        uploaded_images.append(file_name)
+
         # Save the uploaded file to the specified directory
-        with open(os.path.join(UPLOAD_DIRECTORY+filename), "wb") as buffer:
+        with open(os.path.join(UPLOAD_DIRECTORY+newfilename), "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
-        
-        return {"filename" : filename}
+
+
+    #convert list to strings
+    # initialize an empty string
+    string_output = ""
+ 
+    # traverse in the string
+    for ele in uploaded_images:
+        string_output += f"{ele},"
     
-    except Exception as e:
-        return JSONResponse(content={"message": f"Failed to upload file: {str(e)}"}, status_code=500)
+
+    #remove the last comma
+    string_output = string_output[:-1]
+
+    # return string
+    return string_output
+
+    # return uploaded_images
  
  
 # ***************ADD CATALOG*******************
@@ -101,9 +119,9 @@ def delete_catalog(id: int, db: Session = Depends(get_db), current_user: str = D
 
 
 # ***************GET CATALOG*******************
-@router.get('/catalog/{business_id}', status_code=status.HTTP_200_OK, response_model=List[schemas.CatalogResponse])
-def get_catalog(business_id: int, db: Session = Depends(get_db)):
-    query = db.query(models.Catalog).filter(models.Catalog.business_id == business_id).all()
+@router.get('/catalog/{catalog_id}', status_code=status.HTTP_200_OK, response_model=List[schemas.CatalogResponse])
+def get_catalog(catalog_id: int, db: Session = Depends(get_db)):
+    query = db.query(models.Catalog).filter(models.Catalog.id == catalog_id).all()
     if not query:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No certificates found")   
     return query

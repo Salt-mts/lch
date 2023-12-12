@@ -1,9 +1,13 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, UploadFile
 from .. import models, schemas, oauth2, utils
 from ..database import get_db
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session 
 from typing import List
+from fastapi.responses import JSONResponse
+import shutil
+import os
+import uuid
 
 router = APIRouter(
     tags=['business']
@@ -32,6 +36,46 @@ def add_business(biz: schemas.BusinessAbout, db: Session = Depends(get_db), curr
         db.refresh(insert)
         return insert
     
+
+# ***************UPLOAD BANNER IMAGE*******************
+@router.post("/business/upload/")
+def upload_banner_image(file: UploadFile ):
+
+    # Define the directory to save uploaded images
+    UPLOAD_DIRECTORY = "uploads/banner/"
+
+    # Create the upload directory if it doesn't exist
+    os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
+
+    # Generate a unique filename for the uploaded image
+    file_extension = file.filename.split(".")[-1]
+    filename = f"{utils.generate_unique_id(15)}.{file_extension}"
+    
+    try:
+        # Save the uploaded file to the specified directory
+        with open(os.path.join(UPLOAD_DIRECTORY+filename), "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        
+        return {"filename" : filename}
+    
+    except Exception as e:
+        return JSONResponse(content={"message": f"Failed to upload file: {str(e)}"}, status_code=500)
+ 
+
+# ***************ADD/UPDATE EXPERIENCE*******************
+@router.post("/business/image", status_code = status.HTTP_201_CREATED, response_model=schemas.Business)
+def banner_image(biz: schemas.BusinessImage, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+    query = db.query(models.Business).filter(models.Business.owner_id == current_user.id)
+
+    biz_exist = query.first()
+    if biz_exist:
+        query.update(biz.model_dump(), synchronize_session=False)
+        db.commit()
+        return query.first()
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found, create a business first")
+  
+
 
 # ***************ADD/UPDATE EXPERIENCE*******************
 @router.post("/business/experience", status_code = status.HTTP_201_CREATED, response_model=schemas.Business)

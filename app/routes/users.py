@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, status, UploadFile
-from .. import models, schemas, oauth2
+from .. import models, schemas, oauth2, utils
 from ..database import engine, get_db
 from sqlalchemy.orm import Session 
 from ..utils import get_password_hash, verify_password, baseURL, generate_unique_id
@@ -114,7 +114,8 @@ def upload_user_image(file: UploadFile ):
 
     # Generate a unique filename for the uploaded image
     file_extension = file.filename.split(".")[-1]
-    filename = f"{str(uuid.uuid4())}.{file_extension}"
+    filename = f"{utils.generate_unique_id(15)}.{file_extension}"
+
     
     try:
         # Save the uploaded file to the specified directory

@@ -1,7 +1,5 @@
 #************Users************
-#password reset
-#email verification
-#user image
+# User abillity ro reply to any comment under his business 
 
 
 #following/followers(favorite business)
@@ -10,13 +8,15 @@
 
 #notification
 
-#catalog/ multiple images upload
+#image watermark
 
 #disble subscription on expiration date
 #premium
 
 # logout 
 
+
+#when user opens the app, show them results fron their last two search words
 
 #*********************DONE*****************
 #certifcations/registration
