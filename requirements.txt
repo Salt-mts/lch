@@ -6,3 +6,5 @@ psycopg2==2.9.7
 passlib[bcrypt]
 fastapi-mail==1.2.2
 uvicorn
+pydantic-extra-types==2.1.0
+pydantic-settings==2.0.3
