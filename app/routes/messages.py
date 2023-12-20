@@ -3,19 +3,20 @@ from .. import models, schemas, oauth2, utils
 from ..database import get_db
 from sqlalchemy.orm import Session 
 from typing import List
-from sqlalchemy import or_, desc
+from sqlalchemy import or_, desc, and_
 from ..utils import generate_unique_id
 from fastapi.responses import JSONResponse
 import shutil
 import os
 import uuid
+from datetime import datetime
 
 router = APIRouter(
     tags=['messages']
 )
 
 def verify_owner(conversation_id, user_id, db):    
-    msg = db.query(models.Messages).filter(models.Messages.conversation_id == conversation_id).first()
+    msg = db.query(models.Conversations).filter(models.Conversations.id == conversation_id).first()
     if user_id == msg.sender_id:
         return True
     elif user_id == msg.receiver_id:
@@ -51,108 +52,142 @@ def upload_message_image(file: UploadFile ):
  
 
 # ***************ADD Message*******************
-@router.post("/message/{receiver_id}", status_code=status.HTTP_200_OK)
+@router.post("/message/{receiver_id}", status_code=status.HTTP_200_OK, response_model=schemas.MessageResponse)
 def send_message(receiver_id: int, msg: schemas.Message, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 
+
+    if receiver_id == current_user.id:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="you Cannot send a message to yourself")
+
+    updateTime = datetime.now()
     if not current_user.firstname:
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Update your firstname and lastname to send a message")
     
-    query = db.query(models.Conversations).filter(or_(models.Conversations.sender_id == current_user.id, models.Conversations.receiver_id == current_user.id))
+    # check if there's conversation btw the sender and receiver
+    query = db.query(models.Conversations).filter(or_(and_(models.Conversations.receiver_id == receiver_id, models.Conversations.sender_id == current_user.id),(and_(models.Conversations.sender_id == receiver_id, models.Conversations.receiver_id == current_user.id))))
+
     
     if query.first():
-        conversation_id = query.first().conversation_id
+        conversation_id = query.first().id
+
+        # update conversations table
+        query.first().date_updated = updateTime
+        query.first().last_message = msg.message
+        db.commit()
 
         # insert into messages table
-        insert = models.Messages(conversation_id = conversation_id, **msg.model_dump())
+        insert = models.Messages(conversation_id = conversation_id, sender_id = current_user.id, **msg.model_dump())
         db.add(insert)
         db.commit()
         db.refresh(insert)
+
+
         return insert
     
     else:
-        conversation_id = generate_unique_id(10) 
+        conversation_name = generate_unique_id(10) 
 
-        # insert into messages table   
-        insert = models.Messages(conversation_id = conversation_id, **msg.model_dump())
-        db.add(insert)
-        db.commit()
-        db.refresh(insert)
-    
         # insert into conversation table   
-        conv = models.Conversations(conversation_id = conversation_id, receiver_id = receiver_id, sender_id = current_user.id)
+        conv = models.Conversations(name = conversation_name, sender_id = current_user.id, receiver_id = receiver_id, last_message = msg.message, date_updated = updateTime)
         db.add(conv)
         db.commit()
         db.refresh(conv)
-        return conv
 
-
-# ***************UPDATE COMMENT*******************
-# @router.put("/comment/{comment_id}", status_code=status.HTTP_200_OK)
-# def update_comment(comment_id: int, comment: schemas.Comment, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
-
-#     query = db.query(models.Comments).filter(models.Comments.id == comment_id)
-#     if query.first() is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Comment not found")
+        stmt = db.query(models.Conversations).filter(models.Conversations.name == conversation_name)
+        
+        if stmt.first():
+            # insert into messages table   
+            insert = models.Messages(conversation_id = stmt.first().id,sender_id = current_user.id, **msg.model_dump())
+            db.add(insert)
+            db.commit()
+            db.refresh(insert)
+            return insert
     
-#     if not verify_owner(comment_id, current_user.id, db):
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"You are not authorized to edit someone else's comment")
+        
+@router.post("/reply_message/{conversation_id}", status_code=status.HTTP_200_OK, response_model=schemas.MessageResponse)
+def reply_message(conversation_id: int, msg: schemas.Message, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+
+    updateTime = datetime.now()
+    if not current_user.firstname:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail=f"Update your firstname and lastname to send a message")
     
-#     query.update(comment.model_dump(), synchronize_session=False)
-#     db.commit()
-#     return query.first()
+    # check if there's conversation btw the sender and receiver
+    query = db.query(models.Conversations).filter(models.Conversations.id == conversation_id)
 
-
-
-
- 
-
-# ***************DELETE COMMENT*******************
-# @router.delete('/comment/{comment_id}')
-# def delete_comment(comment_id: int, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
-#     query = db.query(models.Comments).filter(models.Comments.id == comment_id)
-#     if not query.first():
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Comment not found")
-
-
-#     if not verify_owner(comment_id, current_user.id, db):
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"You are not authorized to delete someone else's comment")
-
-
-#     query.delete(synchronize_session=False)
-#     db.commit()
-#     return{"data":"deleted"}
-
-
-# ***************GET MESSAGES*******************
-@router.get('/message', status_code=status.HTTP_200_OK)
-def get_my_messages(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
     
-    # query = db.query(models.Messages).distinct(models.Messages.conversation_id).filter(or_(models.Messages.sender_id == current_user.id, models.Messages.receiver_id == current_user.id)).all()
+    if query.first():
+        conversation_id = query.first().id
 
-    query = db.query(models.Conversations).filter(or_(models.Conversations.sender_id == current_user.id, models.Conversations.receiver_id == current_user.id)).order_by(desc(models.Conversations.id)).all()
+        # update conversations table
+        query.first().date_updated = updateTime
+        query.first().last_message = msg.message
+        db.commit()
+        
+        # insert into messages table
+        insert = models.Messages(conversation_id = conversation_id, sender_id = current_user.id, **msg.model_dump())
+        db.add(insert)
+        db.commit()
+        db.refresh(insert)
+
+
+        return insert
+    
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Conversation with id of {conversation_id} was not found")
+    
+
+# ***************GET CONVERSATIONS*******************
+@router.get('/message', status_code=status.HTTP_200_OK, response_model=List[schemas.Conversation])
+def get_my_conversations(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+
+    query = db.query(models.Conversations).filter(or_(models.Conversations.receiver_id == current_user.id, models.Conversations.sender_id == current_user.id)).order_by(desc(models.Conversations.date_updated)).all()
     
     if not query:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No messages found")  
     
-    # return query
-    my_list=[]
-    for i in query:
-        if i.sender_id is not current_user.id:
-            chat_with = i.sender_id
-        else:
-            chat_with = i.receiver_id
+    return query
+    # # my_list=[]
+    # for chat in query:
+    #     if chat.sender_id is not current_user.id:
+    #         chat_with = chat.sender_id
+    #     else:
+    #         chat_with = chat.receiver_id
         
-        my_list.append({"chat_with": chat_with})
-        return my_list
+    #     # my_list.append({"chat_with": chat_with})
+    #     # return my_list
 
-        # return {"conversation_id": i, "chat_with": chat_with}
+    #     # return {"conversation_id": i, "chat_with": chat_with}
+    
+    # return {"Conversation_id": chat.id, "last_message": chat.last_message, "chat_with":chat_with}
      
 
+# ***************GET CONVERSATIONS USER*******************
+@router.get('/message_user/{conversation_id}', status_code=status.HTTP_200_OK)
+def get_convesation_user(conversation_id: int, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 
+    query = db.query(models.Conversations).filter(models.Conversations.id == conversation_id)
+
+    if not query.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No conversation with id of {conversation_id}") 
+    
+  
+    if query.first().sender_id is not current_user.id:
+        chat_with = query.first().sender_id
+    else:
+        chat_with = query.first().receiver_id
+    
+    stmt = db.query(models.User).filter(models.User.id == chat_with).first()
+
+    if not stmt:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User not found") 
+    
+    return {"firstname": stmt.firstname, "lastname": stmt.lastname, "image": stmt.image }
+ 
+ 
 
 # ***************GET ONE MESSAGING*******************
 @router.get('/message/{conversation_id}', status_code=status.HTTP_200_OK, response_model=List[schemas.MessageResponse])
-def get_single_message(conversation_id: str, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+def get_conversation_messages(conversation_id: str, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 
     query = db.query(models.Messages).filter(models.Messages.conversation_id == conversation_id)
 
@@ -163,3 +198,8 @@ def get_single_message(conversation_id: str, db: Session = Depends(get_db), curr
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"You not autorized to view this message {conversation_id}")  
      
     return query
+
+
+
+
+

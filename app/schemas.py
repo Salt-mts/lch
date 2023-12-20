@@ -145,11 +145,18 @@ class Message(BaseModel):
     image: Optional[str]
 
 class MessageResponse(Message):
-    id: int
-    conversation_id: str
+    conversation_id: int
+    message: str
+    image: Optional[str]
+    sender_id: int
     read: int
     date_added: datetime
 
+class Conversation(BaseModel):
+    id: int
+    last_message: str
+    date_updated: datetime
+    # chat_with: UserOut
 
 #************ RATING SCHEMAS ******************
 class Rating(BaseModel):

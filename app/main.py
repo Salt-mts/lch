@@ -1,10 +1,9 @@
 from fastapi import FastAPI
-from .routes import users, auth, business, category, catalog, certifications, comments, messages, rating, subscriptions, reset_password
+from .routes import users, auth, business, category, catalog, certifications, comments, messages, rating, subscriptions, reset_password, jobs
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from .database import engine
-from . import models
-
+# from .database import engine
+# from . import models
 app = FastAPI()
 
 # ************************ CORS ************************
@@ -22,7 +21,11 @@ app.add_middleware(
 
 # models.Base.metadata.create_all(bind=engine)
 
+# make uploads folder readable from outside world
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
+#start scheduler
+# jobs.scheduler.start()
 
 app.include_router(users.router)
 app.include_router(auth.router)

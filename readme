@@ -16,7 +16,12 @@
 # logout 
 
 
-#when user opens the app, show them results fron their last two search words
+#when user opens the app, show them results from their last two search words
+
+#altrnative to fastapi-mail
+#email config
+
+
 
 #*********************DONE*****************
 #certifcations/registration
