@@ -1,12 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends, status, UploadFile
 from .. import models, schemas, oauth2, utils
-from ..database import engine, get_db
+from ..database import get_db
 from sqlalchemy.orm import Session 
 from ..utils import get_password_hash, verify_password, baseURL, generate_unique_id
 from fastapi.responses import JSONResponse
 import shutil
 import os
-import uuid
 from ..email import welcome_email
 import random
 
@@ -27,7 +26,7 @@ async def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
     #email exist
     email_exist = db.query(models.User).filter(models.User.email == user.email).first()
     if email_exist:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email exist in our database")
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exist in our database")
     
     verification_code = random.randint(100000, 999999)
     fake_code = generate_unique_id(25)
@@ -63,9 +62,25 @@ def verify_email(email: str, verify: int, db: Session = Depends(get_db)):
         return {"data":"success"}
 
 
+# ***************PHONE CONFIRMATION******************
+@router.post("/user/phone/", status_code=status.HTTP_201_CREATED)
+def verify_phone(ph: schemas.VerifyPhone, db: Session = Depends(get_db)):
+    query = db.query(models.User).filter(models.User.phone == ph.phone, models.User.verification_code == ph.code)
+
+    # if phone and code not found
+    if not query.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Verification failed! Phone number not found, or already verified.")
+
+    # if phone and code is found
+    if query.first():
+        query.first().verification_code = 100001
+        query.first().phone_verified = 1
+        db.commit()
+        return {"data":"success"}
+
 
 # ***************PERSONAL DETAILS*******************
-@router.post("/user", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+@router.post("/user/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
 def update_personal_details(user: schemas.Personal, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
     query = db.query(models.User).filter(models.User.id == current_user.id)
     
@@ -81,7 +96,7 @@ def update_personal_details(user: schemas.Personal, db: Session = Depends(get_db
 
 
 # ***************UPDATE PASSWORD*******************
-@router.post("/user/password", status_code=status.HTTP_202_ACCEPTED)
+@router.post("/user/password/", status_code=status.HTTP_202_ACCEPTED)
 def update_password(user: schemas.Password, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 
     user.password = get_password_hash(user.password)
@@ -129,7 +144,7 @@ def upload_user_image(file: UploadFile ):
  
 
 # ***************UPDATE IMAGE*******************
-@router.post("/user/image", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+@router.post("/user/image/", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
 def update_personal_image(img: schemas.PersonalImg, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
     query = db.query(models.User).filter(models.User.id == current_user.id)
     
@@ -145,7 +160,7 @@ def update_personal_image(img: schemas.PersonalImg, db: Session = Depends(get_db
 
 
 # ***************GET USER DETAILS*******************
-@router.get("/user", status_code=status.HTTP_200_OK, response_model=schemas.UserOut)
+@router.get("/user/", status_code=status.HTTP_200_OK, response_model=schemas.UserOut)
 def get_personal_details(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
     results =  db.query(models.User).filter(current_user.id == models.User.id).first()
     if not results:

@@ -19,6 +19,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     verification_code = Column(Integer, default=111111, nullable=False)
     email_verified = Column(Integer, default=0, nullable=False)
+    phone_verified = Column(Integer, default=0, nullable=False)
     date_created = Column(TIMESTAMP(timezone=False), server_default=text("now()"), nullable=False)
 
 
@@ -50,6 +51,8 @@ class Business(Base):
     twitter = Column(String, nullable=True)
     linkedin = Column(String, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
+    is_verified = Column(Boolean, default=False, nullable=False)
+    level = Column(Integer, default=1, nullable=False)
 
     subscription = relationship("Subscription")
     owner = relationship("User")

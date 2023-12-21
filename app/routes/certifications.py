@@ -54,7 +54,7 @@ def add_certificate(cert: schemas.Cert, db: Session = Depends(get_db), current_u
 
     query = db.query(models.Business).filter(models.Business.owner_id == current_user.id)
     if query.first() is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Business not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Register a business first")
     
     biz_id = query.first().id
     insert = models.Certifications(business_id = biz_id, **cert.model_dump())
@@ -101,9 +101,17 @@ def delete_certificate(id: int, db: Session = Depends(get_db), current_user: str
 
 
 # ***************GET CERTIFICATE*******************
-@router.get('/certification/{business_id}', status_code=status.HTTP_200_OK, response_model=List[schemas.CertResponse])
+@router.get('/certifications/{business_id}', status_code=status.HTTP_200_OK, response_model=List[schemas.CertResponse])
 def get_certificates(business_id: int, db: Session = Depends(get_db)):
     query = db.query(models.Certifications).filter(models.Certifications.business_id == business_id).all()
+    if not query:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No certificates found")   
+    return query
+
+
+@router.get('/certification/{cert_id}', status_code=status.HTTP_200_OK, response_model=schemas.CertResponse)
+def view_single_certificate(cert_id: int, db: Session = Depends(get_db)):
+    query = db.query(models.Certifications).filter(models.Certifications.id == cert_id).first()
     if not query:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No certificates found")   
     return query

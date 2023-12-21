@@ -1,13 +1,11 @@
 from fastapi import APIRouter, HTTPException, Depends, status, File, UploadFile
 from .. import models, schemas, oauth2, utils
-from ..database import engine, get_db
+from ..database import get_db
+from sqlalchemy import func
 from sqlalchemy.orm import Session 
 from typing import List
-
-from fastapi.responses import JSONResponse
 import shutil
 import os
-import uuid
 
 
 
@@ -123,5 +121,14 @@ def delete_catalog(id: int, db: Session = Depends(get_db), current_user: str = D
 def get_catalog(catalog_id: int, db: Session = Depends(get_db)):
     query = db.query(models.Catalog).filter(models.Catalog.id == catalog_id).all()
     if not query:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No certificates found")   
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No catalogs found")   
     return query
+
+
+@router.get('/explore_catalogs/', status_code=status.HTTP_200_OK, response_model=List[schemas.CatalogResponse])
+def explore_catalogs(db: Session = Depends(get_db)):
+    query = db.query(models.Catalog).order_by(func.random()).limit(50)
+    if not query:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No catalogs found")   
+    return query
+

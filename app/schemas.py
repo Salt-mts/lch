@@ -55,6 +55,10 @@ class VerifyResetPassword(BaseModel):
     password: str
     confirm_password: str
 
+class VerifyPhone(BaseModel):
+    phone: str
+    code: int
+
 
 # authentication
 class Token(BaseModel):
@@ -100,12 +104,6 @@ class Catalog(BaseModel):
 
 class CatalogResponse(Catalog):
     id: int
-
-class CatalogImage(BaseModel):
-    image1: str
-    image2: Optional[str]
-    image3: Optional[str]
-
 
 
 #************ CERTIFICATION SCHEMAs ******************

@@ -1,5 +1,5 @@
 #************Users************
-# User abillity ro reply to any comment under his business 
+#verification levels (as they upload document)
 
 
 #following/followers(favorite business)
@@ -13,7 +13,9 @@
 #disble subscription on expiration date
 #premium
 
-# logout 
+#logout 
+
+#User abillity ro reply to any comment under his business 
 
 
 #when user opens the app, show them results from their last two search words
@@ -24,6 +26,9 @@
 
 
 #*********************DONE*****************
+#get single cert
+#display all business catalog images in profile
+#display random catalog images in explore page (sort by business nearest to you)
 #certifcations/registration
 #comments
 #env

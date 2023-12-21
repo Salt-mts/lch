@@ -137,7 +137,7 @@ def update_social_media(biz: schemas.BusinessSocial, db: Session = Depends(get_d
 # ***************GET LOGGED IN USER BUSINESS AND DETAILS*******************
 @router.get("/business", status_code=status.HTTP_200_OK, response_model=schemas.Business)
 def get_my_business(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
-    results =  db.query(models.Business).filter(current_user.id == models.Business.owner_id).first()
+    results =  db.query(models.Business).filter(models.Business.owner_id == current_user.id).first()
     if not results:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business no found, create a business.")
     
