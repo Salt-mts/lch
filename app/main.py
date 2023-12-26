@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from .routes import users, auth, business, category, catalog, certifications, comments, messages, rating, subscriptions, reset_password, jobs
+from .routes import users, auth, business, category, catalog, certifications, comments, messages, rating, subscriptions, reset_password
+from .admin_routes import admin_auth, admin_users, admin_business, admin_subscription, admin_details
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 # from .database import engine
@@ -38,3 +39,10 @@ app.include_router(comments.router)
 app.include_router(rating.router)
 app.include_router(subscriptions.router)
 app.include_router(category.router)
+
+# admin routes
+app.include_router(admin_auth.router)
+app.include_router(admin_details.router)
+app.include_router(admin_users.router)
+app.include_router(admin_business.router)
+app.include_router(admin_subscription.router)

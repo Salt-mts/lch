@@ -1,27 +1,18 @@
 #************Users************
 #verification levels (as they upload document)
-
-
-#following/followers(favorite business)
-
-#messages(chat)
-
+#resend verification email/sms
 #notification
 
+#messages(chat)
 #image watermark
-
 #disble subscription on expiration date
 #premium
-
 #logout 
-
 #User abillity ro reply to any comment under his business 
-
-
 #when user opens the app, show them results from their last two search words
-
 #altrnative to fastapi-mail
 #email config
+#(favorite business)
 
 
 

@@ -22,9 +22,30 @@ class User(Base):
     phone_verified = Column(Integer, default=0, nullable=False)
     date_created = Column(TIMESTAMP(timezone=False), server_default=text("now()"), nullable=False)
 
+class Admin(Base):
+    __tablename__ = "admins"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String, nullable=False)
+    firstname = Column(String, nullable=True)
+    lastname = Column(String, nullable=True)
+    level = Column(Integer, default=1)
+    date_created = Column(TIMESTAMP(timezone=False), server_default=text("now()"), nullable=False)
 
 
+class Favorite(Base):
+    __tablename__ = "favorite"
 
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
+
+    business = relationship("Business")
+
+
+    
 class Business(Base):
     __tablename__ = "business"
 
@@ -59,6 +80,7 @@ class Business(Base):
     catalog = relationship("Catalog")
     certifications = relationship("Certifications")
     comments = relationship("Comments")
+    sub_history = relationship("SubHistory")
 
 
 class Catalog(Base):

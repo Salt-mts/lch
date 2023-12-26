@@ -134,6 +134,7 @@ def update_social_media(biz: schemas.BusinessSocial, db: Session = Depends(get_d
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found, create a business first")
     
+
 # ***************GET LOGGED IN USER BUSINESS AND DETAILS*******************
 @router.get("/business", status_code=status.HTTP_200_OK, response_model=schemas.Business)
 def get_my_business(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
@@ -155,13 +156,13 @@ def get_single_business( id: int, db: Session = Depends(get_db)):
 
 
 # ***************GET ALL BUSINESSES*******************
-@router.get("/businesses", status_code=status.HTTP_200_OK, response_model=List[schemas.Business])
-def get_all_businesses(db: Session = Depends(get_db)):
-    results =  db.query(models.Business).all()
-    if not results:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=" NO business found.")
+# @router.get("/businesses", status_code=status.HTTP_200_OK, response_model=List[schemas.Business])
+# def get_all_businesses(db: Session = Depends(get_db)):
+#     results =  db.query(models.Business).all()
+#     if not results:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=" NO business found.")
     
-    return results
+#     return results
 
 
 # ***************SEARCH/QUERY BUSINESSES*******************
@@ -178,3 +179,35 @@ def query_businesses(db: Session = Depends(get_db), search: str = 'engineer', li
     
     return results
 
+
+
+# ***************SAVE/FAVORITE A BUSINESS*******************
+@router.post("/savebusiness/{business_id}", status_code=status.HTTP_200_OK)
+def save_businesses(business_id: int, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+
+    # check if business exist
+    query = db.query(models.Business).filter(models.Business.id == business_id)
+    if not query.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found.")
+    
+    
+    # check if already saved
+    stmt = db.query(models.Favorite).filter(models.Favorite.business_id == business_id, models.Favorite.user_id == current_user.id)
+    if stmt.first():
+        stmt.delete(synchronize_session=False)
+        db.commit()
+        return{"result":"deleted"}
+    
+    else:    
+        insert = models.Favorite(user_id = current_user.id, business_id = business_id)
+        db.add(insert)
+        db.commit()
+        db.refresh(insert)
+        return{"result":"saved"}
+    
+
+
+@router.get("/savebusiness/", status_code=status.HTTP_200_OK, response_model=List[schemas.Favorite])
+def save_businesses(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+    stmt = db.query(models.Favorite).filter(models.Favorite.user_id == current_user.id)
+    return stmt.all()

@@ -3,27 +3,24 @@ from datetime import datetime
 from typing import Optional, List, Any, Dict
 
 # ***********USER SCHEMAS*************
-class RegisterUser(BaseModel):
-    email: EmailStr
+
+class RegisterAdminUser(BaseModel):
+    username: str
     password: str
 
 class Password(BaseModel):
     password: str
     old_password: str
 
-class User(BaseModel):
+class AdminOut(BaseModel):
     id: int
-    email: EmailStr
-    password: str
+    username: str
+    email: Optional[EmailStr]
     firstname: Optional[str]
     lastname: Optional[str]
-    phone: Optional[str]
-    sex: Optional[str]
-    image: Optional[str]
-    is_active: bool
+    level: Optional[int]
     date_created: datetime
-    verification_code: Optional[int]
-    email_verified: Optional[int]
+    
 
 class UserOut(BaseModel):
     id: int
@@ -36,27 +33,12 @@ class UserOut(BaseModel):
     is_active: bool
     date_created: datetime
     email_verified: Optional[int]
-    
+
 
 class Personal(BaseModel):
+    email: Optional[EmailStr]
     firstname: Optional[str]
     lastname: Optional[str]
-    phone: Optional[str]
-    sex: Optional[str]
-
-class PersonalImg(BaseModel):
-    image: str
-
-class ResetPassword(BaseModel):
-    email: EmailStr
-
-class VerifyResetPassword(BaseModel):
-    password: str
-    confirm_password: str
-
-class VerifyPhone(BaseModel):
-    phone: str
-    code: int
 
 
 # authentication
@@ -65,7 +47,7 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    id: Optional[int] = None
+    username: Optional[str] = None
 
 
 #************ RESPOSNSE SCHEMAS ******************
@@ -81,13 +63,6 @@ class RegResponse(BaseModel):
 
 class UserResponse(RegResponse):
     pass
-    # firstname: Optional[str]
-    # lastname: Optional[str]
-    # phone: Optional[int]
-    # address: Optional[str]
-    # city: Optional[str]
-    # state: Optional[str]
-    # country: Optional[str]
 
     class Config:
         from_attributes = True
@@ -183,7 +158,6 @@ class SubHistory(BaseModel):
     start_date: datetime
     end_date: datetime
 
-
 #************ BUSINESS SCHEMAS ******************
 
 class Business(BaseModel):
@@ -209,11 +183,11 @@ class Business(BaseModel):
     linkedin: Optional[str]
     is_active: bool
     owner: UserOut
-    subscription: List[SubscriptionResponse]
     catalog: List[CatalogResponse]
     certifications: List[CertResponse]
     comments: List[CommentResponse]
-    # sub_history: List[SubHistory]
+    subscription: List[SubscriptionResponse]
+    sub_history: List[SubHistory]
 
 
 class BusinessAbout(BaseModel):
@@ -247,25 +221,7 @@ class BusinessImage(BaseModel):
     image: str
 
 
-class BusinessBasic(BaseModel):
-    id: int
-    name: str
-    about: Optional[str]
-    category: Optional[str]
-    image: Optional[str]    
-    address: Optional[str]
-    city: Optional[str]
-    state: Optional[str]
-    country: Optional[str]   
 
-
-
-#************ SAVED BUSINESS SCHEMA ******************
-class Favorite(BaseModel):
-    id: int
-    user_id: int
-    # business_id: int
-    business: BusinessBasic
 
 
 #************ CATEGORY SCHEMA ******************
