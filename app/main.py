@@ -41,8 +41,8 @@ app.include_router(subscriptions.router)
 app.include_router(category.router)
 
 # admin routes
-app.include_router(admin_auth.router)
-app.include_router(admin_details.router)
-app.include_router(admin_users.router)
-app.include_router(admin_business.router)
-app.include_router(admin_subscription.router)
+# app.include_router(admin_auth.router)
+# app.include_router(admin_details.router)
+# app.include_router(admin_users.router)
+# app.include_router(admin_business.router)
+# app.include_router(admin_subscription.router)

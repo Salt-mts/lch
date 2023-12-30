@@ -3,7 +3,7 @@ from .. import models, schemas, oauth2_shorttime
 from ..database import get_db
 from sqlalchemy.orm import Session 
 from ..utils import  baseURL, get_password_hash
-from ..email import pass_reset_email
+# from ..email import pass_reset_email
 
 router = APIRouter(
     tags=["ResetPassword"]
@@ -19,11 +19,11 @@ async def reset_password(email: schemas.ResetPassword, db: Session = Depends(get
         reset_link = f"{baseURL}passwordverify/{access_token}"
 
         #send email
-        await pass_reset_email("Password reset", email.email, {
-            "token": reset_link,
-            "baseURL": baseURL,
-            "name": query.first().firstname
-        } )
+        # await pass_reset_email("Password reset", email.email, {
+        #     "token": reset_link,
+        #     "baseURL": baseURL,
+        #     "name": query.first().firstname
+        # } )
 
         return {"link", access_token}
     

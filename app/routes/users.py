@@ -6,7 +6,7 @@ from ..utils import get_password_hash, verify_password, baseURL, generate_unique
 from fastapi.responses import JSONResponse
 import shutil
 import os
-from ..email import welcome_email
+# from ..email import welcome_email
 import random
 
 router = APIRouter(
@@ -38,10 +38,10 @@ async def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
     db.refresh(new_uza)
 
     # send welcome email
-    await welcome_email("Email Confirmation", user.email, {
-        "token": f"{baseURL}register/{user.email}/{verification_code}/{fake_code}",
-        "baseURL": baseURL
-    } )
+    # await welcome_email("Email Confirmation", user.email, {
+    #     "token": f"{baseURL}register/{user.email}/{verification_code}/{fake_code}",
+    #     "baseURL": baseURL
+    # } )
     return new_uza
 
 

@@ -62,6 +62,7 @@ def upload_banner_image(file: UploadFile ):
         return JSONResponse(content={"message": f"Failed to upload file: {str(e)}"}, status_code=500)
  
 
+"""
 # ***************ADD/UPDATE EXPERIENCE*******************
 @router.post("/business/image", status_code = status.HTTP_201_CREATED, response_model=schemas.Business)
 def banner_image(biz: schemas.BusinessImage, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
@@ -104,7 +105,7 @@ def update_address(biz: schemas.BusinessAddress, db: Session = Depends(get_db), 
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found, create a business first")
     
-
+"""
 
 # ***************ADD/UPDATE WORKING DAYS AND TIME*******************
 @router.post("/business/schedule", status_code = status.HTTP_201_CREATED, response_model=schemas.Business)
@@ -153,16 +154,6 @@ def get_single_business( id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business no found.")
     
     return results
-
-
-# ***************GET ALL BUSINESSES*******************
-# @router.get("/businesses", status_code=status.HTTP_200_OK, response_model=List[schemas.Business])
-# def get_all_businesses(db: Session = Depends(get_db)):
-#     results =  db.query(models.Business).all()
-#     if not results:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=" NO business found.")
-    
-#     return results
 
 
 # ***************SEARCH/QUERY BUSINESSES*******************

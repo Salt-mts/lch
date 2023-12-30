@@ -220,6 +220,12 @@ class BusinessAbout(BaseModel):
     name: str
     about: Optional[str]
     category: Optional[str]
+    work_experience: Optional[str]
+    years_of_experience: Optional[int]
+    address: Optional[str]
+    city: Optional[str]
+    state: Optional[str]
+    country: Optional[str]
 
 class BusinessExperience(BaseModel):
     work_experience: Optional[str]

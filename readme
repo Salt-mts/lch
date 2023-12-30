@@ -1,4 +1,5 @@
 #************Users************
+# location column in database
 #verification levels (as they upload document)
 #resend verification email/sms
 #notification
