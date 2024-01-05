@@ -4,10 +4,8 @@ SQLAlchemy==2.0.21
 python-jose[cryptography]
 psycopg2==2.9.7
 passlib[bcrypt]
-fastapi-mail==1.2.2
 uvicorn
 pydantic-extra-types==2.1.0
 pydantic-settings==2.0.3
-APScheduler
 python-multipart==0.0.6
 email-validator

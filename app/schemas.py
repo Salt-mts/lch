@@ -51,6 +51,7 @@ class ResetPassword(BaseModel):
     email: EmailStr
 
 class VerifyResetPassword(BaseModel):
+    email: EmailStr
     password: str
     confirm_password: str
 
@@ -199,6 +200,7 @@ class Business(BaseModel):
     city: Optional[str]
     state: Optional[str]
     country: Optional[str]
+    location: Optional[str]
     days: Optional[str]
     hour_from: Optional[str]
     hour_to: Optional[str]
@@ -252,6 +254,9 @@ class BusinessHour(BaseModel):
 class BusinessImage(BaseModel):
     image: str
 
+class BusinessLocation(BaseModel):
+    location: str
+
 
 class BusinessBasic(BaseModel):
     id: int
@@ -283,5 +288,4 @@ class Category(BaseModel):
 
 class CategoryResponse(Category):
     id: int
-
 

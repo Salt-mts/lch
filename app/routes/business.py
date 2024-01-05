@@ -7,7 +7,6 @@ from typing import List
 from fastapi.responses import JSONResponse
 import shutil
 import os
-import uuid
 
 router = APIRouter(
     tags=['business']
@@ -62,8 +61,8 @@ def upload_banner_image(file: UploadFile ):
         return JSONResponse(content={"message": f"Failed to upload file: {str(e)}"}, status_code=500)
  
 
-"""
-# ***************ADD/UPDATE EXPERIENCE*******************
+
+# ***************ADD/UPDATE BANNER*******************
 @router.post("/business/image", status_code = status.HTTP_201_CREATED, response_model=schemas.Business)
 def banner_image(biz: schemas.BusinessImage, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
     query = db.query(models.Business).filter(models.Business.owner_id == current_user.id)
@@ -75,9 +74,24 @@ def banner_image(biz: schemas.BusinessImage, db: Session = Depends(get_db), curr
         return query.first()
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found, create a business first")
-  
+ 
 
 
+# ***************ADD/UPDATE LOCATION*******************
+@router.post("/business/location", status_code = status.HTTP_201_CREATED, response_model=schemas.Business)
+def update_map_location(loc: schemas.BusinessLocation, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+    query = db.query(models.Business).filter(models.Business.owner_id == current_user.id)
+    if query.first():
+        query.update(loc.model_dump(), synchronize_session=False)
+        db.commit()
+        return query.first()
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Business not found, create a business first")
+ 
+
+ 
+
+"""
 # ***************ADD/UPDATE EXPERIENCE*******************
 @router.post("/business/experience", status_code = status.HTTP_201_CREATED, response_model=schemas.Business)
 def update_experience(biz: schemas.BusinessExperience, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
@@ -199,6 +213,6 @@ def save_businesses(business_id: int, db: Session = Depends(get_db), current_use
 
 
 @router.get("/savebusiness/", status_code=status.HTTP_200_OK, response_model=List[schemas.Favorite])
-def save_businesses(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
+def my_saved_businesses(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
     stmt = db.query(models.Favorite).filter(models.Favorite.user_id == current_user.id)
     return stmt.all()

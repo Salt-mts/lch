@@ -1,47 +1,31 @@
-"""
-
-from starlette.responses import JSONResponse
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
-from .config import settings
-from .utils import baseURL
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 
-conf = ConnectionConfig(
-    MAIL_USERNAME = 'mo6014245571@gmail.com',
-    MAIL_PASSWORD = 'lnuu meou kcvs nhyk',
-    MAIL_FROM = "mo6014245571@gmail.com",
-    MAIL_PORT = 587,
-    MAIL_SERVER = 'smtp.gmail.com',
-    MAIL_FROM_NAME = "Labour Connect Hub",
-    MAIL_STARTTLS = True,
-    MAIL_SSL_TLS = False,
-    TEMPLATE_FOLDER = 'templates',
-)
+MAIL_USERNAME = 'mo6014245571@gmail.com'
+MAIL_PASSWORD = 'lnuu meou kcvs nhyk'
+MAIL_FROM = "mo6014245571@gmail.com"
+MAIL_PORT = 587
+MAIL_SERVER = 'smtp.gmail.com'
+MAIL_FROM_NAME = "Labour Connect Hub"
 
 
 
-async def welcome_email(subject: str, recipients: str, body: dict) -> JSONResponse:
-    message = MessageSchema(
-        subject=subject,
-        recipients=[recipients],
-        template_body=body,
-        subtype='html',
-        )
 
-    fm = FastMail(conf)
-    await fm.send_message(message, template_name="welcome_email.html") 
+async def send_mail(to: str, subject: str, body: str):
+    message = MIMEMultipart("alternative")
+    message["From"] = MAIL_USERNAME
+    message["To"] = to
+    message["Subject"] = subject
 
+    part = MIMEText(body, "html")
+    message.attach(part)
+    context = ssl.create_default_context()
 
-
-async def pass_reset_email(subject: str, recipients: str, body: dict) -> JSONResponse:
-    message = MessageSchema(
-        subject=subject,
-        recipients=[recipients],
-        template_body=body,
-        subtype='html',
-        )
-
-    fm = FastMail(conf)
-    await fm.send_message(message, template_name="pass_reset_email.html") 
-
-    """
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(MAIL_USERNAME, MAIL_PASSWORD)
+            server.sendmail(MAIL_USERNAME, to, message.as_string())
+    except Exception as e:
+        return {"status": 500, "errors": e}

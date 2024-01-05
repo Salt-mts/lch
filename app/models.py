@@ -11,6 +11,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
     password = Column(String, nullable=False)
+    username = Column(String, nullable=True)
     firstname = Column(String, nullable=True)
     lastname = Column(String, nullable=True)
     phone = Column(String, nullable=True)
@@ -74,6 +75,7 @@ class Business(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     is_verified = Column(Boolean, default=False, nullable=False)
     level = Column(Integer, default=1, nullable=False)
+    location = Column(Text, nullable=True)
 
     subscription = relationship("Subscription")
     owner = relationship("User")
