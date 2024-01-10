@@ -23,6 +23,7 @@ class User(Base):
     phone_verified = Column(Integer, default=0, nullable=False)
     date_created = Column(TIMESTAMP(timezone=False), server_default=text("now()"), nullable=False)
 
+
 class Admin(Base):
     __tablename__ = "admins"
 
@@ -45,8 +46,7 @@ class Favorite(Base):
 
     business = relationship("Business")
 
-
-    
+  
 class Business(Base):
     __tablename__ = "business"
 
@@ -56,7 +56,7 @@ class Business(Base):
     name = Column(String, nullable=False)
     about = Column(Text, nullable=True)
     category = Column(String, nullable=True)
-    image = Column(String, nullable=True)
+    image = Column(String, default="default.png", nullable=True)
     tag = Column(Text, nullable=False)
     work_experience = Column(Text, nullable=True)
     years_of_experience = Column(Integer, nullable=True)
@@ -105,7 +105,6 @@ class Certifications(Base):
     image = Column(String, nullable=False)
 
 
- 
 class Comments(Base):
     __tablename__ = "comments"
 
@@ -127,9 +126,6 @@ class Conversations(Base):
     sender_id = Column(Integer, nullable=False)
     last_message = Column(String, nullable=False)
     date_updated = Column(TIMESTAMP(timezone=True), server_default=text("now()"), nullable=False)
-
-    
-
 
 
 class Messages(Base):

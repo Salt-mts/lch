@@ -17,7 +17,9 @@ router = APIRouter(
 
 @router.get("/")
 def root():
-    return {"message": "Hello Userssssssssss"}
+    return {"message": "Welcome"}
+
+
 
 # ***************REGISTER USER******************
 @router.post("/register", status_code=status.HTTP_201_CREATED, response_model=schemas.RegResponse)
@@ -28,6 +30,11 @@ async def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
     if email_exist:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already exist in our database")
     
+    # check password length
+    if(len(user.password) < 6):
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Password length must be six characters or more")
+        
+
     verification_code = random.randint(100000, 999999)
     fake_code = generate_unique_id(25)
     user.password = get_password_hash(user.password)
@@ -127,17 +134,23 @@ def update_personal_details(user: schemas.Personal, db: Session = Depends(get_db
 @router.post("/user/password/", status_code=status.HTTP_202_ACCEPTED)
 def update_password(user: schemas.Password, db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
 
+    # check password length
+    if(len(user.password) < 6):
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Password length must be six characters or more")
+    
+    # hash the password
     user.password = get_password_hash(user.password)
 
-    query = db.query(models.User).filter(models.User.id == current_user.id)
     
-    #user exist
+    #check if user exist
+    query = db.query(models.User).filter(models.User.id == current_user.id)
     user_exist = query.first()
     if user_exist:
+        # verify if old paswword is correct
         verfy_pass = verify_password(user.old_password, user_exist.password)
         if not verfy_pass:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid password")
-        
+
         query.update({"password": user.password}, synchronize_session=False)
         db.commit()
         return {"data": "success"}
@@ -195,10 +208,3 @@ def get_personal_details(db: Session = Depends(get_db), current_user: str = Depe
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No personal details found.")
     
     return results
-
-
-#get all users
-# @router.get("/users", status_code=status.HTTP_200_OK, response_model=List[schemas.UserResponse])
-# def get_users(db: Session = Depends(get_db), current_user: str = Depends(oauth2.get_current_user)):
-#     uza =  db.query(models.User).all()
-#     return uza

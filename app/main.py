@@ -27,8 +27,8 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 #start scheduler
 # jobs.scheduler.start()
 
-app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(users.router)
 app.include_router(password_reset.router)
 app.include_router(business.router)
 app.include_router(messages.router)

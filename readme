@@ -1,23 +1,24 @@
 #************Users************
-# location column in database
+
 #verification levels (as they upload document)
 #resend verification email/sms
 #notification
+
 
 #messages(chat)
 #image watermark
 #disble subscription on expiration date
 #premium
 #logout 
-#User abillity ro reply to any comment under his business 
+#User abillity to reply to any comment under his business 
 #when user opens the app, show them results from their last two search words
-#altrnative to fastapi-mail
 #email config
-#(favorite business)
 
 
 
 #*********************DONE*****************
+#alternative to fastapi-mail
+#(favorite business)
 #get single cert
 #display all business catalog images in profile
 #display random catalog images in explore page (sort by business nearest to you)
