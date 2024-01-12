@@ -12,57 +12,6 @@ import uuid
 router = APIRouter(
     tags=['category']
 )
-# ***************UPLOAD CATEGORY IMAGE*******************
-@router.post("/category/upload/")
-def upload_category_image(file: UploadFile ):
-
-    # Define the directory to save uploaded images
-    UPLOAD_DIRECTORY = "uploads/category/"
-
-    # Create the upload directory if it doesn't exist
-    os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
-
-    # Generate a unique filename for the uploaded image
-    file_extension = file.filename.split(".")[-1]
-    filename = f"{utils.generate_unique_id(15)}.{file_extension}"
-    
-    allowed_extension = ['png', 'jpg', "jpeg", 'PNG', 'JPG', 'JPEG']
-
-    if file_extension not in allowed_extension:
-        raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED, detail=f"file format not allowed, only jpg, png, and jpeg are allowed")
-    try:
-        # Save the uploaded file to the specified directory
-        with open(os.path.join(UPLOAD_DIRECTORY+filename), "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-        
-        return {"filename" : filename}
-    
-    except Exception as e:
-        return JSONResponse(content={"message": f"Failed to upload file: {str(e)}"}, status_code=500)
-    
-
-
-# ***************ADD CATEGORY*******************
-@router.post("/category", status_code=status.HTTP_201_CREATED)
-def add_category(cat: schemas.Category, db: Session = Depends(get_db)):
-
-    insert = models.Category( **cat.model_dump())
-    db.add(insert)
-    db.commit()
-    db.refresh(insert)
-    return insert
-
-
-# ***************DELETE CATEGORY*******************
-@router.delete("/category/{id}", status_code=status.HTTP_200_OK)
-def delete_category(id: int, db: Session = Depends(get_db)):
-    stmt = db.query(models.Category).filter(models.Category.id == id)
-    if stmt.first() == None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'not found')
-    
-    stmt.delete(synchronize_session=False)
-    db.commit()
-
 
 # ***************GET ALL CATEGORY*******************
 @router.get("/category", status_code=status.HTTP_200_OK, response_model=List[schemas.CategoryResponse])
