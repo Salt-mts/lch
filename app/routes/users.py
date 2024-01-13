@@ -57,7 +57,7 @@ async def register(user: schemas.RegisterUser, db: Session = Depends(get_db)):
     <body style='background-color: #f5f5f5; width: 100%;font-family: Roboto, sans-serif; font-size: 14px;color: #525252; letter-spacing: 0.5px;'>
         <div style='max-width: 600px; padding: 30px; margin: auto;'>
             <div style='background-color: #fff; padding: 30px;'>
-                <img src='{baseURL}resources/images/logo.png' alt='logo' style='width:  250px;' />
+                <img src='{baseURL}resources/images/logo.png' alt='logo' style='width:200px;' />
             </div>
             <div style='padding-top: 20px;'>
                 <p>
@@ -106,7 +106,7 @@ async def resend(email: str, db: Session = Depends(get_db)):
         <body style='background-color: #f5f5f5; width: 100%;font-family: Roboto, sans-serif; font-size: 14px;color: #525252; letter-spacing: 0.5px;'>
             <div style='max-width: 600px; padding: 30px; margin: auto;'>
                 <div style='background-color: #fff; padding: 30px;'>
-                    <img src='{baseURL}resources/images/logo.png' alt='logo' style='width:  250px;' />
+                    <img src='{baseURL}resources/images/logo.png' alt='logo' style='width:200px;' />
                 </div>
                 <div style='padding-top: 20px;'>
                     <p>

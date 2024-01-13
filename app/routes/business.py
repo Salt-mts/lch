@@ -183,7 +183,7 @@ def get_all_businesses(limit: int, db: Session = Depends(get_db)):
 
 # ***************SEARCH/QUERY BUSINESSES*******************
 @router.get("/search", status_code=status.HTTP_200_OK, response_model=List[schemas.Business])
-def query_businesses(db: Session = Depends(get_db), search: str = 'engineer', limit: int  = 50, location: str = 'lagos'):
+def query_businesses(db: Session = Depends(get_db), search: str = 'engineer', limit: int  = 50, location: str = ''):
 
   
     results =  db.query(models.Business).filter(func.lower(models.Business.tag).like('%' +func.lower(search) + '%'), func.lower(models.Business.city).like('%' +func.lower(location) + '%')).limit(limit=limit).all()
