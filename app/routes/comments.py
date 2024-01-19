@@ -47,9 +47,6 @@ def update_comment(comment_id: int, comment: schemas.Comment, db: Session = Depe
     db.commit()
     return query.first()
 
-
-
-
  
 
 # ***************DELETE COMMENT*******************
@@ -74,5 +71,5 @@ def delete_comment(comment_id: int, db: Session = Depends(get_db), current_user:
 def get_comments(business_id: int, db: Session = Depends(get_db)):
     query = db.query(models.Comments).filter(models.Comments.business_id == business_id).all()
     if not query:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No certificates found")   
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No reviews found")   
     return query

@@ -3,6 +3,7 @@
 #verification levels (as they upload document)
 #resend verification email/sms
 #notification
+#add amount to subscription table
 
 
 #messages(chat)
