@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, status, UploadFile
+from fastapi import APIRouter, HTTPException, Depends, status, UploadFile, File
 from .. import models, schemas_admin, utils, oauth2_admin
 from ..database import get_db
 from sqlalchemy.orm import Session 
@@ -9,11 +9,11 @@ import os
 
 
 router = APIRouter(
-    tags=['category']
+    tags=['Admin category']
 )
 # ***************UPLOAD CATEGORY IMAGE*******************
 @router.post("/admin_category/upload/")
-def upload_category_image(file: UploadFile ):
+def upload_category_image(file: UploadFile):
 
     # Define the directory to save uploaded images
     UPLOAD_DIRECTORY = "uploads/category/"
@@ -42,8 +42,9 @@ def upload_category_image(file: UploadFile ):
 
 
 # ***************ADD CATEGORY*******************
-@router.post("/admin_category", status_code=status.HTTP_201_CREATED)
-def add_category(cat: schemas_admin.Category, db: Session = Depends(get_db), admin_user: str = Depends(oauth2_admin.get_admin_user)):
+@router.post("/admin_category/", status_code=status.HTTP_201_CREATED)
+# def add_category(cat: schemas_admin.Category, db: Session = Depends(get_db), admin_user: str = Depends(oauth2_admin.get_admin_user)):
+def add_category(cat: schemas_admin.Category, db: Session = Depends(get_db)):
 
     insert = models.Category( **cat.model_dump())
     db.add(insert)
@@ -54,7 +55,8 @@ def add_category(cat: schemas_admin.Category, db: Session = Depends(get_db), adm
 
 # ***************DELETE CATEGORY*******************
 @router.delete("/admin_category/{id}", status_code=status.HTTP_200_OK)
-def delete_category(id: int, db: Session = Depends(get_db), admin_user: str = Depends(oauth2_admin.get_admin_user)):
+# def delete_category(id: int, db: Session = Depends(get_db), admin_user: str = Depends(oauth2_admin.get_admin_user)):
+def delete_category(id: int, db: Session = Depends(get_db)):
     stmt = db.query(models.Category).filter(models.Category.id == id)
     if stmt.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'not found')
@@ -65,7 +67,7 @@ def delete_category(id: int, db: Session = Depends(get_db), admin_user: str = De
 
 
 # ***************GET ALL CATEGORY*******************
-@router.get("/admin_category", status_code=status.HTTP_200_OK, response_model=List[schemas_admin.CategoryResponse])
+@router.get("/admin_category/", status_code=status.HTTP_200_OK, response_model=List[schemas_admin.CategoryResponse])
 def get_all_category(db: Session = Depends(get_db)):
     category = db.query(models.Category).all()
     if not category:
@@ -73,9 +75,9 @@ def get_all_category(db: Session = Depends(get_db)):
     return category
 
 
-# ***************GET PARENT CATEGORY*******************
-@router.get("/admin_category/main", status_code=status.HTTP_200_OK, response_model=List[schemas_admin.CategoryResponse])
-def get_parent_category(db: Session = Depends(get_db)):
+# ***************GET ALL PARENT CATEGORY*******************
+@router.get("/admin_category/main/", status_code=status.HTTP_200_OK, response_model=List[schemas_admin.CategoryResponse])
+def get_all_parent_category(db: Session = Depends(get_db)):
     category = db.query(models.Category).filter(models.Category.parent_id == 0).all()
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No category found!")
@@ -83,9 +85,14 @@ def get_parent_category(db: Session = Depends(get_db)):
 
 
 # ***************GET PARENT CATEGORY*******************
-@router.get("/admin_category/{parent_id}", status_code=status.HTTP_200_OK, response_model=List[schemas_admin.CategoryResponse])
+@router.get("/admin_category/{parent_id}", status_code=status.HTTP_200_OK)
 def get_sub_category(parent_id: int, db: Session = Depends(get_db)):
-    category = db.query(models.Category).filter(models.Category.parent_id == parent_id).all()
-    if not category:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No category found!")
-    return category
+
+    if(parent_id == 0):        
+        return "None"
+    
+    else:
+        category = db.query(models.Category).filter(models.Category.id == parent_id).first()
+        if not category:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"No category found!")
+        return category.name

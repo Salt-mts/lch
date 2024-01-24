@@ -1,8 +1,9 @@
 from .database import Base
-from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Text, Float
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey, Text, Float, Date, DATE
 from sqlalchemy.sql.sqltypes import TIMESTAMP
-from sqlalchemy.sql.expression import text
+from sqlalchemy.sql.expression import text, func
 from sqlalchemy.orm import relationship
+from datetime import timedelta, datetime, timezone
 
 
 class User(Base):
@@ -16,7 +17,7 @@ class User(Base):
     lastname = Column(String, nullable=True)
     phone = Column(String, nullable=True)
     sex = Column(String, nullable=True)
-    image = Column(String, default="default.png", nullable=True)
+    image = Column(String, default="uploads/users/default.png", nullable=True)
     is_active = Column(Boolean, default=True)
     verification_code = Column(Integer, default=111111, nullable=False)
     email_verified = Column(Integer, default=0, nullable=False)
@@ -56,7 +57,7 @@ class Business(Base):
     name = Column(String, nullable=False)
     about = Column(Text, nullable=True)
     category = Column(String, nullable=True)
-    image = Column(String, default="default.png", nullable=True)
+    image = Column(String, default="uploads/banner/default.png", nullable=True)
     tag = Column(Text, nullable=False)
     work_experience = Column(Text, nullable=True)
     years_of_experience = Column(Integer, nullable=True)
@@ -101,6 +102,7 @@ class CatalogImg(Base):
     __tablename__ = "catalog_img"
 
     id = Column(Integer, primary_key=True, index=True)
+    business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
     catalog_id = Column(Integer, ForeignKey("catalog.id", ondelete="CASCADE"), nullable=False)
     image = Column(String, nullable=False)
 
@@ -164,7 +166,7 @@ class Category(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    image = Column(String, nullable=False, default="default.png")
+    image = Column(String, nullable=False, default="uploads/category/default.png")
     description = Column(String, nullable=True)
     parent_id = Column(Integer, nullable=False, default=0)
 
@@ -177,6 +179,8 @@ class Subscription(Base):
     is_active = Column(Boolean, default=True, nullable=False)
     start_date = Column(TIMESTAMP(timezone=True), nullable=False)
     end_date = Column(TIMESTAMP(timezone=True), nullable=False)
+    price = Column(Float, nullable=False)
+    date_created = Column(Date, server_default=text("now()"), nullable=False)
 
 
 class SubHistory(Base):
@@ -186,4 +190,15 @@ class SubHistory(Base):
     business_id = Column(Integer, ForeignKey("business.id", ondelete="CASCADE"), nullable=False)
     start_date = Column(TIMESTAMP(timezone=True), nullable=False)
     end_date = Column(TIMESTAMP(timezone=True), nullable=False)
+    price = Column(Float, nullable=False)
+    date_created = Column(Date, server_default=text("now()"), nullable=False)
+
+
+class SubPrice(Base):
+    __tablename__ = "sub_price"
+
+    id = Column(Integer, primary_key=True, index=True)
+    duration = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
+    date_updated = Column(TIMESTAMP(timezone=False), server_default=text("now()"), nullable=False)
 

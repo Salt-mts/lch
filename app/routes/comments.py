@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List
 
 router = APIRouter(
-    tags=['comments']
+    tags=['Reviews']
 )
 
 def verify_owner(comment_id, user_id, db):    

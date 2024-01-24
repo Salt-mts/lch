@@ -14,6 +14,8 @@ router = APIRouter(
     tags=['catalog']
 )
 
+# catImgUrl = f"{baseURL}uploads/catalog/"
+catImgUrl = "uploads/catalog/"
 
 def verify_owner(cid, uid, db):
     
@@ -41,7 +43,7 @@ def upload_catalog_image(files: List[UploadFile] = File(...) ):
         newfilename = f"{utils.generate_unique_id(15)}.{file_extension}"
 
         # For demonstration purposes, we'll just store the filename and content type.
-        file_name = newfilename
+        file_name = catImgUrl+newfilename
         uploaded_images.append(file_name)
 
         # Save the uploaded file to the specified directory
@@ -82,7 +84,7 @@ def add_catalog(catalog: schemas.Catalog, db: Session = Depends(get_db), current
     db.refresh(insert)
 
     for files in catalog.images:
-        add = models.CatalogImg(catalog_id = insert.id, image = files)
+        add = models.CatalogImg(catalog_id = insert.id, business_id = biz_id, image = files)
         db.add(add)
         db.commit()
 
